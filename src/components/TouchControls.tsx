@@ -1,8 +1,10 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import { useGameStore } from '../store/gameStore'
 
 export default function TouchControls() {
-    const { moveForward, moveBackward, turnLeft, turnRight, playerAttack, inventory, equipWeapon } = useGameStore()
+    const { phase, moveForward, moveBackward, turnLeft, turnRight, playerAttack, inventory, equipWeapon, pickupItem } = useGameStore()
+
+    if (phase !== 'PLAYING') return null
 
     // Prevent default touch behavior (ghost clicks, zooming)
     const handleTouch = (e: React.TouchEvent, action: () => void) => {
@@ -127,7 +129,7 @@ export default function TouchControls() {
                 <div
                     onTouchStart={(e) => {
                         e.preventDefault()
-                        useGameStore.getState().pickupItem()
+                        pickupItem()
                     }}
                     style={{
                         ...btnStyle,
