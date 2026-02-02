@@ -13,7 +13,7 @@
 ## Phases
 
 ### Phase 1: The Engine & GRID
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Build the core rendering loop and grid movement system.
 **Deliverables**:
 - React Three Fiber scene setup
