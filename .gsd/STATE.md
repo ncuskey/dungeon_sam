@@ -1,29 +1,19 @@
 # STATE.md
 
 ## Current Position
-- **Milestone**: v0.2 (Immersive Update) — ✅ COMPLETE
-- **Status**: Deployed to https://dungeonsam.site 🚀
-- **Paused at**: 2026-02-02 06:48
+- **Milestone**: v0.3 (Illumination & Touch) — ✅ COMPLETE
+- **Status**: Codebase Mapped. Ready for v0.4 planning.
 
 ## Last Session Summary
-- **Audio System**: Implemented procedural audio engine (Web Audio API)
-  - Ominous BGM with filtered layers (no external files)
-  - SFX (footsteps, attacks, hits, enemy screams)
-- **Deployment**:
-  - Renamed "Deathkeep Clone" to "Dungeon Sam"
-  - Deployed to DigitalOcean (165.227.241.60)
-  - Configured Nginx + SSL (Certbot)
-  - Fixed 404/DNS conflicts
-- **Gameplay**:
-  - Added weapon switching (Q key)
-  - Updated start screen instructions
-  - Moved UI elements for better layout
+Codebase mapping complete.
+- **Components**: 11 UI/Render components identified.
+- **Debts**: Found unused `howler` dependency.
+- **Docs**: Updated ARCHITECTURE.md and STACK.md.
 
-## In-Progress Work
-- None (All changes committed and deployed)
+## Completed Milestones
+- **v0.3**: Dynamic Lighting + Tablet Controls
+- **v0.2**: Audio System + Weapon Switching
+- **v0.1**: Core Gameplay Loop
 
-## Next Steps (v0.3 - Dynamic Lighting)
-1.  **Torch Placement**: Add torches to dungeon generator logic (BSP/Random Walk)
-2.  **Point Lights**: Update `LevelRenderer` to support multiple dynamic lights
-3.  **Particle Effects**: Creating torch flickering and flame particles
-4.  **Shadows**: Enable shadow maps for immersive atmosphere
+## Next Steps
+1. /new-milestone v0.4 (Suggestions: Enemies, Progression, Polish)
