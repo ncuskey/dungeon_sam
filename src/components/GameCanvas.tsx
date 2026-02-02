@@ -1,16 +1,23 @@
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
+import CameraRig from './CameraRig'
 
 function GameCanvas() {
     return (
-        <Canvas camera={{ position: [0, 2, 5], fov: 75 }}>
+        <Canvas camera={{ fov: 75 }}>
             <ambientLight intensity={0.5} />
             <pointLight position={[10, 10, 10]} />
-            <mesh rotation={[0, Math.PI / 4, 0]}>
+            {/* Reference Cube at 0,0 */}
+            <mesh position={[0, 0, 0]}>
                 <boxGeometry args={[1, 1, 1]} />
                 <meshStandardMaterial color="hotpink" />
             </mesh>
-            <OrbitControls />
+            {/* Reference Cube at 4,6 (Player Start) */}
+            <mesh position={[4, 0, 6]}>
+                <boxGeometry args={[0.5, 0.5, 0.5]} />
+                <meshStandardMaterial color="cyan" />
+            </mesh>
+            <CameraRig />
+            <gridHelper args={[20, 10]} />
         </Canvas>
     )
 }

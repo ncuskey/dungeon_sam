@@ -1,8 +1,12 @@
 import GameCanvas from './components/GameCanvas'
+import PlayerController from './components/PlayerController'
 
 function App() {
     return (
-        <GameCanvas />
+        <>
+            <PlayerController />
+            <GameCanvas />
+        </>
     )
 }
 
