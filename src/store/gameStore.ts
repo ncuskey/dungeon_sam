@@ -1,35 +1,170 @@
 import { create } from 'zustand'
+import { generateDungeon } from '../utils/dungeonGenerator'
+import { moveEnemy } from '../utils/ai'
+
+import { Enemy, Item, Inventory, Light } from '../types/game'
+import { v4 as uuidv4 } from 'uuid'
 
 export const CELL_SIZE = 2 // World units per grid cell
 
 type Direction = 0 | 1 | 2 | 3 // North, East, South, West
+export type GamePhase = 'MENU' | 'PLAYING' | 'WON' | 'GAME_OVER'
 
 interface GameState {
+    phase: GamePhase
     playerPosition: { x: number; y: number }
     playerDirection: Direction
     map: number[][]
+    exitPosition: { x: number; y: number }
+    enemies: Enemy[]
+    lights: Light[]
 
     moveForward: () => void
     moveBackward: () => void
     turnLeft: () => void
     turnRight: () => void
+    spawnEnemy: (x: number, y: number) => void
+    tickGame: () => void
+    playerHealth: number
+    playerAttack: () => void
+
+    // Inventory
+    items: Item[] // Items on ground
+    inventory: Inventory
+    pickupItem: () => void
+    equipWeapon: (itemId: string) => void
+    useItem: (itemId: string) => void
+
+    startGame: () => void
+    resetGame: () => void
 }
 
-// Simple 5x5 room for MVP
-const INITIAL_MAP = [
-    [1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 1],
-    [1, 0, 1, 0, 1],
-    [1, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1],
-]
+const { map: initialMap, startPosition, exitPosition, initialEnemies } = generateDungeon()
+
+// Convert raw positions to Enemy objects
+const enemies: Enemy[] = initialEnemies.map(pos => ({
+    id: uuidv4(),
+    x: pos.x,
+    y: pos.y,
+    type: 'imp',
+    hp: 100
+}))
 
 export const useGameStore = create<GameState>((set) => ({
-    playerPosition: { x: 2, y: 3 }, // Start near bottom
-    playerDirection: 0, // Facing North
-    map: INITIAL_MAP,
+    phase: 'MENU',
+    playerPosition: startPosition,
+    playerDirection: 1, // Facing East
+    map: initialMap,
+    exitPosition,
+    enemies,
+    lights: [], // Will be populated on resetGame/init
+    playerHealth: 100,
+
+    items: [],
+    inventory: { items: [], maxSize: 5, equippedWeaponId: null },
+
+    pickupItem: () => set((state) => {
+        const { x, y } = state.playerPosition
+        const itemIndex = state.items.findIndex(i => i.x === x && i.y === y)
+
+        if (itemIndex > -1) {
+            const item = state.items[itemIndex]
+            if (state.inventory.items.length < state.inventory.maxSize) {
+                const newItems = [...state.items]
+                newItems.splice(itemIndex, 1)
+
+                const newInvItems = [...state.inventory.items, { ...item, x: -1, y: -1 }] // Remove pos
+
+                // Auto equip if it's the first weapon
+                let newEquippedId = state.inventory.equippedWeaponId
+                if (item.type === 'weapon' && !newEquippedId) {
+                    newEquippedId = item.id
+                }
+
+                console.log("Picked up", item.name)
+                return {
+                    items: newItems,
+                    inventory: { ...state.inventory, items: newInvItems, equippedWeaponId: newEquippedId }
+                }
+            } else {
+                console.log("Inventory full")
+            }
+        }
+        return {}
+    }),
+
+    equipWeapon: (itemId) => set((state) => ({
+        inventory: { ...state.inventory, equippedWeaponId: itemId }
+    })),
+
+    useItem: (itemId) => set((state) => {
+        const itemIndex = state.inventory.items.findIndex(i => i.id === itemId)
+        if (itemIndex > -1) {
+            const item = state.inventory.items[itemIndex]
+            if (item.type === 'potion') {
+                const newHealth = Math.min(100, state.playerHealth + (item.effectValue || 25))
+                const newInvItems = [...state.inventory.items]
+                newInvItems.splice(itemIndex, 1)
+                console.log("Used potion, health:", newHealth)
+                return {
+                    playerHealth: newHealth,
+                    inventory: { ...state.inventory, items: newInvItems }
+                }
+            }
+        }
+        return {}
+    }),
+
+    startGame: () => set({ phase: 'PLAYING' }),
+
+    resetGame: () => {
+        const { map, startPosition, exitPosition, initialEnemies } = generateDungeon()
+        const newEnemies = initialEnemies.map(pos => ({
+            id: uuidv4(),
+            x: pos.x,
+            y: pos.y,
+            type: 'imp' as const,
+            hp: 100
+        }))
+
+        // Spawn some dummy items for now
+        const dummyItems: Item[] = []
+        // Find a random free spot? Just hardcode near start for testing
+        // Start is usually map center-ish.
+        dummyItems.push({
+            id: uuidv4(),
+            x: startPosition.x + 2,
+            y: startPosition.y,
+            type: 'weapon',
+            name: 'Sword of Truth',
+            effectValue: 20
+        })
+        dummyItems.push({
+            id: uuidv4(),
+            x: startPosition.x + 1,
+            y: startPosition.y,
+            type: 'potion',
+            name: 'Health Potion',
+            effectValue: 50
+        })
+
+        set({
+            phase: 'PLAYING',
+            map,
+            playerPosition: startPosition,
+            exitPosition,
+            enemies: newEnemies,
+            items: dummyItems,
+            inventory: { items: [], maxSize: 5, equippedWeaponId: null },
+            playerHealth: 100,
+            playerDirection: 1,
+            lights: generateLights(map, startPosition)
+        })
+    },
 
     moveForward: () => set((state) => {
+        if (state.phase !== 'PLAYING') return {}
+
         const { x, y } = state.playerPosition
         let newX = x
         let newY = y
@@ -42,6 +177,22 @@ export const useGameStore = create<GameState>((set) => ({
         }
 
         if (state.map[newY]?.[newX] === 0) {
+            // Check for exit
+            if (newX === state.exitPosition.x && newY === state.exitPosition.y) {
+                return { playerPosition: { x: newX, y: newY }, phase: 'WON' }
+            }
+
+            // Auto-pickup? Or manual? Let's do auto-pickup for MVP v0.2 to save inputs
+            const item = state.items.find(i => i.x === newX && i.y === newY)
+            if (item) {
+                // Schedule pickup (async-ish pattern in zustand actions call other actions)
+                // But we are inside set... we can just do logic inline or call state.pickupItem() if we had access to get().
+                // We don't have Get access in this set callback easily without refactor.
+                // Ideally we separate logic. For now, let's just trigger a side effect or handle it in next tick?
+                // Actually, simpler: Item pickup requires a key press usually 'E'.
+                // Let's NOT auto-pickup. Plan said "Pickup Logic". Let's bind 'E' in PlayerController.
+            }
+
             return { playerPosition: { x: newX, y: newY } }
         }
         return {}
@@ -72,4 +223,127 @@ export const useGameStore = create<GameState>((set) => ({
     turnRight: () => set((state) => ({
         playerDirection: (state.playerDirection + 1) % 4 as Direction
     })),
+
+    playerAttack: () => set((state) => {
+        const { x, y } = state.playerPosition
+        let targetX = x
+        let targetY = y
+
+        switch (state.playerDirection) {
+            case 0: targetY -= 1; break
+            case 1: targetX += 1; break
+            case 2: targetY += 1; break
+            case 3: targetX -= 1; break
+        }
+
+        const enemy = state.enemies.find(e => e.x === targetX && e.y === targetY)
+        if (enemy) {
+            const equippedWeapon = state.inventory.items.find(i => i.id === state.inventory.equippedWeaponId)
+            const damage = equippedWeapon?.effectValue || 25 // Base punch damage
+
+            console.log(`Attacking with ${equippedWeapon?.name || 'Fists'} for ${damage} damage`)
+
+            const newEnemies = state.enemies.map(e => {
+                if (e.id === enemy.id) {
+                    const newHp = e.hp - damage
+                    return { ...e, hp: newHp }
+                }
+                return e
+            }).filter(e => e.hp > 0)
+            return { enemies: newEnemies }
+        } else {
+            return {}
+        }
+    }),
+
+    spawnEnemy: (x, y) => set((state) => ({
+        enemies: [...state.enemies, {
+            id: uuidv4(),
+            x,
+            y,
+            type: 'imp',
+            hp: 100
+        }]
+    })),
+
+    tickGame: () => set((state) => {
+        if (state.phase !== 'PLAYING') return {}
+
+        const { playerPosition, map, enemies } = state
+
+        let takingDamage = false
+        let newPlayerHealth = state.playerHealth
+
+        // Build set of occupied positions (other enemies) to prevent stacking
+        const occupiedSet = new Set<string>()
+        enemies.forEach(e => occupiedSet.add(`${e.x},${e.y}`))
+
+        const newEnemies = enemies.map(enemy => {
+            // Check if adjacent to player
+            const dist = Math.abs(enemy.x - playerPosition.x) + Math.abs(enemy.y - playerPosition.y)
+            if (dist <= 1) {
+                takingDamage = true
+                return enemy // Don't move if attacking
+            }
+
+            // Remove self from occupied set for calculation
+            occupiedSet.delete(`${enemy.x},${enemy.y}`)
+
+            const newPos = moveEnemy(enemy, playerPosition, map, occupiedSet)
+
+            // Add new pos to occupied set
+            occupiedSet.add(`${newPos.x},${newPos.y}`)
+
+            return { ...enemy, ...newPos }
+        })
+
+        if (takingDamage) {
+            newPlayerHealth = Math.max(0, newPlayerHealth - 5)
+        }
+
+        if (newPlayerHealth <= 0 && state.playerHealth > 0) {
+            console.log("GAME OVER")
+            return { enemies: newEnemies, playerHealth: 0, phase: 'GAME_OVER' }
+        }
+
+        return { enemies: newEnemies, playerHealth: newPlayerHealth }
+    })
 }))
+
+function generateLights(map: number[][], startPos: { x: number, y: number }): Light[] {
+    const lights: Light[] = []
+
+    // 1. Guaranteed light at spawn
+    lights.push({
+        id: uuidv4(),
+        x: startPos.x,
+        y: startPos.y,
+        intensity: 2, // Bright
+        color: '#ffaa00',
+        distance: 15
+    })
+
+    // 2. Random torches in hallways
+    map.forEach((row, y) => {
+        row.forEach((cell, x) => {
+            if (cell === 0) { // Floor
+                // Don't put light exactly at spawn again
+                if (x === startPos.x && y === startPos.y) return
+
+                // 10% chance for a torch
+                if (Math.random() < 0.10) {
+                    lights.push({
+                        id: uuidv4(),
+                        x,
+                        y,
+                        intensity: 1.5,
+                        color: '#ff9900', // Torchy orange
+                        distance: 12
+                    })
+                }
+            }
+        })
+    })
+
+    return lights
+}
