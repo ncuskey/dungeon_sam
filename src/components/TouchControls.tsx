@@ -1,4 +1,3 @@
-import React from 'react'
 import { useGameStore } from '../store/gameStore'
 
 export default function TouchControls() {
@@ -6,12 +5,7 @@ export default function TouchControls() {
 
     if (phase !== 'PLAYING') return null
 
-    // Prevent default touch behavior (ghost clicks, zooming)
-    const handleTouch = (e: React.TouchEvent, action: () => void) => {
-        e.preventDefault()
-        e.stopPropagation()
-        action()
-    }
+    // Prevent default touch behavior (ghost clicks, zooming) is now handled inline
 
     const switchWeapon = () => {
         const weapons = inventory.items.filter(i => i.type === 'weapon')
@@ -59,22 +53,22 @@ export default function TouchControls() {
             }}>
                 {/* UP */}
                 <div
-                    onTouchStart={(e) => handleTouch(e, moveForward)}
+                    onPointerDown={(e) => { e.preventDefault(); moveForward(); }}
                     style={{ ...btnStyle, position: 'absolute', top: 0, left: '50px', width: '50px', height: '50px' }}
                 >▲</div>
                 {/* DOWN */}
                 <div
-                    onTouchStart={(e) => handleTouch(e, moveBackward)}
+                    onPointerDown={(e) => { e.preventDefault(); moveBackward(); }}
                     style={{ ...btnStyle, position: 'absolute', bottom: 0, left: '50px', width: '50px', height: '50px' }}
                 >▼</div>
                 {/* LEFT */}
                 <div
-                    onTouchStart={(e) => handleTouch(e, turnLeft)}
+                    onPointerDown={(e) => { e.preventDefault(); turnLeft(); }}
                     style={{ ...btnStyle, position: 'absolute', top: '50px', left: 0, width: '50px', height: '50px' }}
                 >◀</div>
                 {/* RIGHT */}
                 <div
-                    onTouchStart={(e) => handleTouch(e, turnRight)}
+                    onPointerDown={(e) => { e.preventDefault(); turnRight(); }}
                     style={{ ...btnStyle, position: 'absolute', top: '50px', right: 0, width: '50px', height: '50px' }}
                 >▶</div>
             </div>
@@ -90,7 +84,7 @@ export default function TouchControls() {
             }}>
                 {/* ATTACK (Big Button) */}
                 <div
-                    onTouchStart={(e) => handleTouch(e, playerAttack)}
+                    onPointerDown={(e) => { e.preventDefault(); playerAttack(); }}
                     style={{
                         ...btnStyle,
                         position: 'absolute',
@@ -105,7 +99,7 @@ export default function TouchControls() {
 
                 {/* SWITCH WEAPON */}
                 <div
-                    onTouchStart={(e) => handleTouch(e, switchWeapon)}
+                    onPointerDown={(e) => { e.preventDefault(); switchWeapon(); }}
                     style={{
                         ...btnStyle,
                         position: 'absolute',
@@ -119,10 +113,15 @@ export default function TouchControls() {
 
                 {/* HEAL (Potion) */}
                 <div
-                    onTouchStart={(e) => {
+                    onPointerDown={(e) => {
                         e.preventDefault()
                         const potion = inventory.items.find(i => i.type === 'potion')
-                        if (potion) useItem(potion.id)
+                        if (potion) {
+                            console.log("Touch: Using potion", potion.id)
+                            useItem(potion.id)
+                        } else {
+                            console.log("Touch: No potion found in inventory")
+                        }
                     }}
                     style={{
                         ...btnStyle,
@@ -139,7 +138,7 @@ export default function TouchControls() {
 
                 {/* INTERACT (Simulate E) */}
                 <div
-                    onTouchStart={(e) => {
+                    onPointerDown={(e) => {
                         e.preventDefault()
                         pickupItem()
                     }}

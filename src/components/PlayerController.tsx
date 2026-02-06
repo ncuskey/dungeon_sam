@@ -76,6 +76,16 @@ export default function PlayerController() {
                     acted = true
                     break
                 }
+                case 'KeyH':
+                case 'Digit1': {
+                    const state = useGameStore.getState()
+                    const potion = state.inventory.items.find(i => i.type === 'potion')
+                    if (potion) {
+                        state.useItem(potion.id)
+                        acted = true
+                    }
+                    break
+                }
             }
 
             if (acted) lastActionTime.current = now

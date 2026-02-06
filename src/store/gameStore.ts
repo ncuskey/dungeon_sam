@@ -29,6 +29,7 @@ interface GameState {
     tickGame: () => void
     playerHealth: number
     shake: number
+    lastAttackTime: number // For cooldown
     exploredMap: boolean[][] // For minimap fog-of-war
     playerAttack: () => void
 
@@ -69,16 +70,25 @@ export const useGameStore = create<GameState>((set, get) => ({
     lights: initialLights,
     playerHealth: 100,
     shake: 0,
+    lastAttackTime: 0,
     exploredMap: Array(initialMap.length).fill(null).map(() => Array(initialMap[0].length).fill(false)),
 
     revealMap: (px, py) => set((state) => {
+        const yCoord = Math.floor(py)
+        const xCoord = Math.floor(px)
+
         const newExplored = [...state.exploredMap]
         let changed = false
+
         // Reveal 3x3
-        for (let y = py - 1; y <= py + 1; y++) {
-            for (let x = px - 1; x <= px + 1; x++) {
-                if (newExplored[y] && newExplored[y][x] === false) {
-                    newExplored[y] = [...newExplored[y]]
+        for (let y = yCoord - 1; y <= yCoord + 1; y++) {
+            if (!newExplored[y]) continue
+            for (let x = xCoord - 1; x <= xCoord + 1; x++) {
+                if (newExplored[y][x] === false) {
+                    // Lazy-copy the row if we haven't already in this call
+                    if (newExplored[y] === state.exploredMap[y]) {
+                        newExplored[y] = [...state.exploredMap[y]]
+                    }
                     newExplored[y][x] = true
                     changed = true
                 }
@@ -175,63 +185,46 @@ export const useGameStore = create<GameState>((set, get) => ({
         get().revealMap(startPosition.x, startPosition.y)
     },
 
-    moveForward: () => set((state) => {
-        if (state.phase !== 'PLAYING') return {}
+    moveForward: () => {
+        const state = get()
+        if (state.phase !== 'PLAYING') return
 
         const { x, y } = state.playerPosition
-        let newX = x
-        let newY = y
+        const dir = state.playerDirection
+        let newX = x, newY = y
 
-        switch (state.playerDirection) {
-            case 0: newY -= 1; break // North
-            case 1: newX += 1; break // East
-            case 2: newY += 1; break // South
-            case 3: newX -= 1; break // West
-        }
+        if (dir === 0) newY -= 1
+        else if (dir === 1) newX += 1
+        else if (dir === 2) newY += 1
+        else newX -= 1
 
         if (state.map[newY]?.[newX] === 0) {
-            // Check for exit
-            if (newX === state.exitPosition.x && newY === state.exitPosition.y) {
-                return { playerPosition: { x: newX, y: newY }, phase: 'WON' }
-            }
-
-            // Auto-pickup? Or manual? Let's do auto-pickup for MVP v0.2 to save inputs
-            const item = state.items.find(i => i.x === newX && i.y === newY)
-            if (item) {
-                // Schedule pickup (async-ish pattern in zustand actions call other actions)
-                // But we are inside set... we can just do logic inline or call state.pickupItem() if we had access to get().
-                // We don't have Get access in this set callback easily without refactor.
-                // Ideally we separate logic. For now, let's just trigger a side effect or handle it in next tick?
-                // Actually, simpler: Item pickup requires a key press usually 'E'.
-                // Let's NOT auto-pickup. Plan said "Pickup Logic". Let's bind 'E' in PlayerController.
-            }
-
-            return { playerPosition: { x: newX, y: newY } }
+            set({ playerPosition: { x: newX, y: newY } })
+            get().revealMap(newX, newY)
         }
-        return {}
-    }),
+    },
 
-    moveBackward: () => set((state) => {
+    moveBackward: () => {
+        const state = get()
+        if (state.phase !== 'PLAYING') return
+
         const { x, y } = state.playerPosition
-        let newX = x
-        let newY = y
+        const dir = state.playerDirection
+        let newX = x, newY = y
 
-        switch (state.playerDirection) {
-            case 0: newY += 1; break // Back from North -> South
-            case 1: newX -= 1; break
-            case 2: newY -= 1; break
-            case 3: newX += 1; break
-        }
+        if (dir === 0) newY += 1
+        else if (dir === 1) newX -= 1
+        else if (dir === 2) newY -= 1
+        else newX += 1
 
         if (state.map[newY]?.[newX] === 0) {
-            state.revealMap(newX, newY)
-            return { playerPosition: { x: newX, y: newY } }
+            set({ playerPosition: { x: newX, y: newY } })
+            get().revealMap(newX, newY)
         }
-        return {}
-    }),
+    },
 
     turnLeft: () => set((state) => ({
-        playerDirection: (state.playerDirection - 1 + 4) % 4 as Direction
+        playerDirection: (state.playerDirection + 3) % 4 as Direction
     })),
 
     turnRight: () => set((state) => ({
@@ -239,6 +232,9 @@ export const useGameStore = create<GameState>((set, get) => ({
     })),
 
     playerAttack: () => set((state) => {
+        const now = performance.now()
+        if (now - state.lastAttackTime < 500) return {}
+
         const { x, y } = state.playerPosition
         let targetX = x
         let targetY = y
@@ -257,10 +253,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         playAttackSound(!!enemy, weaponType)
 
         if (enemy) {
-            const damage = equippedWeapon?.effectValue || 25 // Base punch damage
-
-            console.log(`Attacking with ${equippedWeapon?.name || 'Fists'} for ${damage} damage`)
-
+            const damage = equippedWeapon?.effectValue || 25
             const newEnemies = state.enemies.map(e => {
                 if (e.id === enemy.id) {
                     const newHp = e.hp - damage
@@ -268,70 +261,52 @@ export const useGameStore = create<GameState>((set, get) => ({
                 }
                 return e
             }).filter(e => e.hp > 0)
-            return { enemies: newEnemies, shake: 0.5 }
+            return { enemies: newEnemies, shake: 0.5, lastAttackTime: now }
         } else {
-            return { shake: 0.1 } // Small jitter on miss
+            return { shake: 0.1, lastAttackTime: now }
         }
     }),
 
     spawnEnemy: (x, y) => set((state) => ({
-        enemies: [...state.enemies, {
-            id: uuidv4(),
-            x,
-            y,
-            type: 'imp',
-            hp: 100
-        }]
+        enemies: [...state.enemies, { id: uuidv4(), x, y, type: 'imp', hp: 100 }]
     })),
 
     tickGame: () => set((state) => {
         if (state.phase !== 'PLAYING') return {}
 
-        const { playerPosition, map, enemies } = state
-
-        let takingDamage = false
-        let newPlayerHealth = state.playerHealth
-        let newShake = Math.max(0, state.shake - 0.1) // Decay faster for cleaner feel
-
-        // Build set of occupied positions (other enemies) to prevent stacking
         const occupiedSet = new Set<string>()
-        enemies.forEach(e => occupiedSet.add(`${e.x},${e.y}`))
+        state.enemies.forEach(e => occupiedSet.add(`${e.x},${e.y}`))
 
-        const newEnemies = enemies.map(enemy => {
-            // Check if adjacent to player
-            const dist = Math.abs(enemy.x - playerPosition.x) + Math.abs(enemy.y - playerPosition.y)
-            if (dist <= 1) {
-                takingDamage = true
-                return enemy // Don't move if attacking
-            }
-
-            // Remove self from occupied set for calculation
+        const newEnemies = state.enemies.map(enemy => {
             occupiedSet.delete(`${enemy.x},${enemy.y}`)
-
-            const newPos = moveEnemy(enemy, playerPosition, map, occupiedSet)
-
-            // Add new pos to occupied set
+            const newPos = moveEnemy(enemy, state.playerPosition, state.map, occupiedSet)
             occupiedSet.add(`${newPos.x},${newPos.y}`)
-
             return { ...enemy, ...newPos }
         })
 
-        if (takingDamage) {
-            newPlayerHealth = Math.max(0, newPlayerHealth - 5)
-            newShake = 1.0 // Violent shake on dmg
+        let playerHealth = state.playerHealth
+        let newShake = Math.max(0, state.shake - 0.1)
+
+        const isNearEnemy = state.enemies.some(e =>
+            Math.abs(e.x - state.playerPosition.x) + Math.abs(e.y - state.playerPosition.y) <= 1
+        )
+
+        if (isNearEnemy && Math.random() < 0.1) {
+            playerHealth -= 5
+            newShake = 1.0
+            soundManager.playHurt()
         }
 
-        if (newPlayerHealth <= 0 && state.playerHealth > 0) {
-            console.log("GAME OVER")
-            return { enemies: newEnemies, playerHealth: 0, phase: 'GAME_OVER', shake: 0 }
+        if (playerHealth <= 0) {
+            return { playerHealth: 0, phase: 'GAME_OVER', shake: 0 }
         }
 
         return {
             enemies: newEnemies,
-            playerHealth: newPlayerHealth,
+            playerHealth,
             shake: newShake
         }
-    })
+    }),
 }))
 
 function generateLights(map: number[][], startPos: { x: number, y: number }): Light[] {

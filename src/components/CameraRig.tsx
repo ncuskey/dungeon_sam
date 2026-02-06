@@ -32,7 +32,7 @@ export default function CameraRig() {
         targetQuat.copy(dummyObject.current.quaternion)
 
         // Smooth lerp
-        const speed = 10 * delta
+        const speed = 15 * delta
         state.camera.position.lerp(targetPos, speed)
         state.camera.quaternion.slerp(targetQuat, speed)
 

@@ -1,9 +1,9 @@
 # STATE.md
 
 ## Current Position
-- **Milestone**: v0.4 (The Lantern & The Blade) - COMPLETE ✅
-- **Phase**: All Phases Complete
-- **Status**: Milestone v0.4 finalized. Lighting, Combat, Feedback, and Minimap systems are live.
+- **Milestone**: v0.4.1 (Repair & Polish)
+- **Phase**: Not started
+- **Status**: Milestone planned. Addressing bugs in Potion usage, Minimap, and Combat.
 
 ## Last Session Summary
 Finalized v0.3 (Illumination & Touch). Defined v0.4 requirements: wall lighting, combat juice, and exploration minimap.

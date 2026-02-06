@@ -1,13 +1,23 @@
 # ROADMAP.md
 
-> **Current Milestone**: [NONE]
-> **Goal**: Awaiting next objective.
+> **Current Milestone**: v0.4.1 (Repair & Polish)
+> **Goal**: Fix critical bugs in lighting, minimap, and combat speed.
 
 ## Must-Haves
-- [ ] TBD
+- [ ] **Potion Fixes**: Working touch button + keyboard shortcut ('H'/'1').
+- [ ] **Minimap Fix**: Ensure cells reveal correctly during exploration.
+- [ ] **Light Sync**: Player lantern should track movement instantly (no lag).
+- [ ] **Combat Pacing**: Implement attack cooldown to prevent spamming.
 
 ## Phases
-- [ ] TBD
+
+### Phase 1: Engine Repairs
+**Status**: ⬜ Not Started
+**Objective**: Fix the minimap state logic and player light synchronization.
+
+### Phase 2: UX Polish
+**Status**: ⬜ Not Started
+**Objective**: Add keyboard shortcuts and combat cooldowns.
 
 ## Completed Milestones
 
