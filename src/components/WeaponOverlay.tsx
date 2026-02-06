@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useGameStore } from '../store/gameStore'
 
 export default function WeaponOverlay() {
@@ -16,16 +16,26 @@ export default function WeaponOverlay() {
     // Or add `lastAttackTime` to store. Let's add listener for now to decouple.
 
     const lastAttackTime = useGameStore(state => state.lastAttackTime)
-    const [lastTrigger, setLastTrigger] = useState(0)
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
     useEffect(() => {
-        if (lastAttackTime > 0 && lastAttackTime !== lastTrigger) {
-            setLastTrigger(lastAttackTime)
+        if (lastAttackTime > 0) {
+            // Cancel any pending reset
+            if (timeoutRef.current) clearTimeout(timeoutRef.current)
+
             setIsAttacking(true)
-            const timer = setTimeout(() => setIsAttacking(false), 300) // 300ms swing/recovery
-            return () => clearTimeout(timer)
+
+            // Set reset timer
+            timeoutRef.current = setTimeout(() => {
+                setIsAttacking(false)
+                timeoutRef.current = null
+            }, 400) // Slightly longer to ensure it's visible before resetting
         }
-    }, [lastAttackTime, lastTrigger])
+
+        return () => {
+            if (timeoutRef.current) clearTimeout(timeoutRef.current)
+        }
+    }, [lastAttackTime])
 
     const weapon = items.find(i => i.id === equippedWeaponId)
     // const weaponName = weapon ? weapon.name : 'Fists'

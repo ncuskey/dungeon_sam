@@ -1,5 +1,5 @@
-import { useFrame, useThree } from '@react-three/fiber'
-import { useEffect, useRef } from 'react'
+import { useFrame } from '@react-three/fiber'
+import { useRef } from 'react'
 import * as THREE from 'three'
 import { useGameStore, CELL_SIZE } from '../store/gameStore'
 
@@ -14,18 +14,6 @@ export default function CameraRig() {
     const targetQuat = useRef(new THREE.Quaternion()).current
     const dummyObject = useRef(new THREE.Object3D())
     const lightRef = useRef<THREE.PointLight>(null!)
-    const { camera } = useThree()
-
-    // Aggressively attach light to camera once
-    useEffect(() => {
-        if (lightRef.current) {
-            camera.add(lightRef.current)
-            console.log("Lantern attached to camera")
-        }
-        return () => {
-            if (lightRef.current) camera.remove(lightRef.current)
-        }
-    }, [camera])
 
     useFrame((state, delta) => {
         targetPos.set(
@@ -48,18 +36,17 @@ export default function CameraRig() {
             state.camera.position.z += (Math.random() - 0.5) * intensity
         }
 
-        // Light is now a child of camera, so it follows perfectly
-        // We just ensure it's at [0,0,0] relative to camera
+        // Robust manual sync to ensure the lantern stays with the camera
         if (lightRef.current) {
-            lightRef.current.position.set(0, 0, 0)
+            lightRef.current.position.copy(state.camera.position)
         }
     })
 
     return (
         <pointLight
             ref={lightRef}
-            intensity={2.5} // Brighter lantern
-            distance={10}   // More range
+            intensity={3.0} // Even brighter for clarity
+            distance={10}
             color="#ffcc66"
             decay={1.5}
         />

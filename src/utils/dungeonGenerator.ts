@@ -242,12 +242,14 @@ export function generateDungeon() {
             initialEnemies.push({ x: ex, y: ey })
         }
 
-        // Potions - scattered
+        // Potions - rarer and capped
+        let roomPotions = 0
         for (let py = room.y; py < room.y + room.h; py++) {
             for (let px = room.x; px < room.x + room.w; px++) {
+                if (roomPotions >= 2) break
                 // Don't spawn on start/exit or existing items
                 if (!isOccupied(px, py) && !initialItems.some(i => i.x === px && i.y === py)) {
-                    if (Math.random() < 0.05) { // 5% chance per cell in room
+                    if (Math.random() < 0.02) { // 2% chance per cell in room
                         initialItems.push({
                             id: uuidv4(),
                             x: px,
@@ -256,6 +258,7 @@ export function generateDungeon() {
                             name: 'Health Potion',
                             effectValue: 50
                         })
+                        roomPotions++
                     }
                 }
             }
