@@ -1,25 +1,22 @@
 # ROADMAP.md
 
-> **Current Milestone**: v0.4.1 (Repair & Polish)
-> **Goal**: Fix critical bugs in lighting, minimap, and combat speed.
+> **Current Milestone**: [NONE]
+> **Goal**: Awaiting next objective.
 
 ## Must-Haves
-- [ ] **Potion Fixes**: Working touch button + keyboard shortcut ('H'/'1').
-- [ ] **Minimap Fix**: Ensure cells reveal correctly during exploration.
-- [ ] **Light Sync**: Player lantern should track movement instantly (no lag).
-- [ ] **Combat Pacing**: Implement attack cooldown to prevent spamming.
+- [ ] TBD
 
 ## Phases
-
-### Phase 1: Engine Repairs
-**Status**: ⬜ Not Started
-**Objective**: Fix the minimap state logic and player light synchronization.
-
-### Phase 2: UX Polish
-**Status**: ⬜ Not Started
-**Objective**: Add keyboard shortcuts and combat cooldowns.
+- [ ] TBD
 
 ## Completed Milestones
+
+### v0.4.1 (Repair & Polish) — ✅
+- Fixed Minimap exploration state persistence
+- Snappier camera & lantern tracking
+- Fixed potion buttons + added H/1 hotkeys
+- Implemented attack cooldowns (0.5s)
+- Deployed to https://dungeonsam.site
 
 ### v0.4 (The Lantern & The Blade) — ✅
 - Wall-Anchored Torches & Player Lantern

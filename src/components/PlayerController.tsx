@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react'
 import { useGameStore } from '../store/gameStore'
-import { playAttackSound } from '../audio/audioIntegration'
 
 export default function PlayerController() {
     const moveForward = useGameStore((state) => state.moveForward)
@@ -41,21 +40,8 @@ export default function PlayerController() {
                     break
                 case 'Space':
                 case 'KeyF': {
-                    // Check if we have an enemy to hit
-                    const state = useGameStore.getState()
-                    const { x, y } = state.playerPosition
-                    const dir = state.playerDirection
-                    let targetX = x, targetY = y
-                    if (dir === 0) targetY -= 1
-                    else if (dir === 1) targetX += 1
-                    else if (dir === 2) targetY += 1
-                    else targetX -= 1
-
-                    const hasTarget = state.enemies.some(e => e.x === targetX && e.y === targetY)
-                    const weaponType = state.inventory.equippedWeaponId ? 'sword' : 'fist'
-
-                    playAttackSound(hasTarget, weaponType)
-                    state.playerAttack()
+                    console.log("Keydown: Attack triggered")
+                    useGameStore.getState().playerAttack()
                     acted = true
                     break
                 }

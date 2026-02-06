@@ -233,7 +233,10 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     playerAttack: () => set((state) => {
         const now = performance.now()
-        if (now - state.lastAttackTime < 500) return {}
+        const diff = now - state.lastAttackTime
+        if (diff < 700) { // Increased to 0.7s to feel more deliberate
+            return {}
+        }
 
         const { x, y } = state.playerPosition
         let targetX = x
@@ -287,14 +290,17 @@ export const useGameStore = create<GameState>((set, get) => ({
         let playerHealth = state.playerHealth
         let newShake = Math.max(0, state.shake - 0.1)
 
-        const isNearEnemy = state.enemies.some(e =>
+        // Check for damage based on NEW positions
+        const isNearEnemy = newEnemies.some(e =>
             Math.abs(e.x - state.playerPosition.x) + Math.abs(e.y - state.playerPosition.y) <= 1
         )
 
-        if (isNearEnemy && Math.random() < 0.1) {
-            playerHealth -= 5
-            newShake = 1.0
-            soundManager.playHurt()
+        if (isNearEnemy) {
+            if (playerHealth > 0 && Math.random() < 0.15) { // 15% chance
+                playerHealth -= 5
+                newShake = 1.0
+                soundManager.playHurt()
+            }
         }
 
         if (playerHealth <= 0) {

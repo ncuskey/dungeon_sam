@@ -1,9 +1,9 @@
 # STATE.md
 
 ## Current Position
-- **Milestone**: v0.4.1 (Repair & Polish)
-- **Phase**: Not started
-- **Status**: Milestone planned. Addressing bugs in Potion usage, Minimap, and Combat.
+- **Milestone**: v0.4.1 (Repair & Polish) - COMPLETE ✅
+- **Phase**: All Fixes Applied
+- **Status**: Engine and UX bugs resolved. Minimap and Potions are fully functional.
 
 ## Last Session Summary
 Finalized v0.3 (Illumination & Touch). Defined v0.4 requirements: wall lighting, combat juice, and exploration minimap.
