@@ -1,35 +1,22 @@
 # ROADMAP.md
 
-> **Current Milestone**: v0.4 (The Lantern & The Blade)
-> **Goal**: Enhance atmospheric lighting, balance combat/items, and add exploration clarity.
+> **Current Milestone**: [NONE]
+> **Goal**: Awaiting next objective.
 
 ## Must-Haves
-- [ ] **Wall-Anchored Torches**: Torches placed on walls with better intensity/color.
-- [ ] **Player Glow**: A subtle light source that follows the player.
-- [ ] **Combat Balancing**: Sword damage > Fists, functional healing potions.
-- [ ] **Item Distribution**: More frequent potion spawns.
-- [ ] **Combat Feedback**: Visual hit effects (shakes/flashes/particles).
-- [ ] **Exploration Minimap**: A map that reveals as the player visits cells.
+- [ ] TBD
 
 ## Phases
-
-### Phase 1: Radiance (Lighting & Atmosphere)
-**Status**: ✅ Complete
-**Objective**: Fix the "too dark" issue. Implement wall-anchored torches and a mobile player light.
-
-### Phase 2: Arsenal (Combat & Items)
-**Status**: ✅ Complete
-**Objective**: Scale damage values and implement potion healing logic + procedural spawning.
-
-### Phase 3: Impact (Feedback & Juice)
-**Status**: ✅ Complete
-**Objective**: Add visual and auditory feedback for combat (screen shake, damage numbers, or flashes).
-
-### Phase 4: Cartography (Minimap)
-**Status**: ⬜ Not Started
-**Objective**: Build a minimap UI that starts dark and reveals visited grid cells.
+- [ ] TBD
 
 ## Completed Milestones
+
+### v0.4 (The Lantern & The Blade) — ✅
+- Wall-Anchored Torches & Player Lantern
+- Procedural Item Spawning & Balancing
+- Screen Shake & Hit Flashes
+- Auto-revealing Minimap
+- Deployed to https://dungeonsam.site
 
 ### v0.3 (Illumination & Touch) — ✅
 - Dynamic Lighting (Torches, Point Lights)

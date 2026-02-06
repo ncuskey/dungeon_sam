@@ -1,9 +1,9 @@
 # STATE.md
 
 ## Current Position
-- **Milestone**: v0.4 (The Lantern & The Blade)
-- **Phase**: 3 Complete
-- **Status**: Impact & Juice implemented. Ready for Phase 4: Cartography.
+- **Milestone**: v0.4 (The Lantern & The Blade) - COMPLETE ✅
+- **Phase**: All Phases Complete
+- **Status**: Milestone v0.4 finalized. Lighting, Combat, Feedback, and Minimap systems are live.
 
 ## Last Session Summary
 Finalized v0.3 (Illumination & Touch). Defined v0.4 requirements: wall lighting, combat juice, and exploration minimap.
