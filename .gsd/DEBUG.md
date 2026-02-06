@@ -1,35 +1,27 @@
-# Debug Session: Combat Regressions (v0.4.1)
+# Debug Session: Light Sync & Map Reveal (v0.4.1)
 
 ## Symptom
-1. **Enemy Protection?**: Enemies are no longer dealing damage to the player in `tickGame`.
-2. **Attack Spam**: Holding the attack key (Space/F) results in rapid-fire attacks, bypassing the 500ms cooldown.
+1. **Vanishing Lantern**: The player's light source (bloom) is not following the character as they move.
+2. **Infinite Fog**: The minimap remains black and does not reveal explored areas during movement.
 
 **When:** During gameplay in v0.4.1.
 **Expected:**
-- Enemies deal 5 damage when adjacent (10% chance per tick).
-- Attacks fire at most once every 500ms, even if the button is held.
+- A point light should stay centered on the player's view/position.
+- The minimap should reveal a 3x3 area around the player as they move forward or backward.
 **Actual:**
-- Player health remains static (or doesn't decrease from enemies).
-- Attacks fire much faster than 0.5s.
+- Light stays at spawn (or doesn't move with camera).
+- Map stays hidden.
+
+## Evidence Gathering
+- [ ] Check `CameraRig.tsx` light position logic.
+- [ ] Check `gameStore.ts` `revealMap` coordinate conversion and state update logic.
+- [ ] Verify `moveForward`/`moveBackward` are correctly calling `get().revealMap()`.
 
 ## Hypotheses
 
 | # | Hypothesis | Likelihood | Status |
 |---|------------|------------|--------|
-| 1 | Adjacency check in `tickGame` uses old `state.enemies` before movement, or distance logic is too strict. | 50% | TESTING |
-| 2 | Redundant `playAttackSound` in `PlayerController` makes it *sound* faster than 2x even if store is blocking. | 30% | TESTING |
-| 3 | `performance.now()` vs `Date.now()` discrepancy or drift? Unlikely but possible. | 10% | UNTESTED |
-| 4 | Attack cooldown (500ms) is exactly 2 hits/sec; user might have expected it to be slower (e.g. 750ms). | 10% | UNTESTED |
-
-## Attempts
-
-### Attempt 1
-**Testing:** H1 & H2 — Added logs and removed redundant sound call.
-**Action:** Added `Nearby enemy detected!` logs and removed `playAttackSound` from `PlayerController`. Increased damage chance to 20% for testing.
-**Result:** Pending (Waiting for build/deploy or more analysis).
-**Conclusion:** POTENTIAL FIX IMPLEMENTED.
-
-## Evidence Gathering
-- [ ] Inspect `tickGame` in `gameStore.ts`.
-- [ ] Inspect attack logic in `gameStore.ts` and `PlayerController.tsx`.
-- [ ] Check if `performance.now()` is consistent across store and components.
+| 1 | `CameraRig` is copying `state.camera.position` which might be at `[0,0,0]` initially or lerping slowly, but the light isn't actualy attached to the camera object in the Three scene. | 60% | UNTESTED |
+| 2 | `revealMap` uses `Math.floor(px)` which might be wrong if `px/py` are already grid integers, or if they are scaled. | 40% | UNTESTED |
+| 3 | `exploredMap` reference isn't changing correctly because the shallow copy logic for rows is slightly flawed or `set` is returning `{}` too often. | 50% | UNTESTED |
+| 4 | `moveForward` uses `get().revealMap(newX, newY)` but the `newX/newY` are grid coords, while the store expects world coords? (No, store seems to use grid). | 20% | UNTESTED |

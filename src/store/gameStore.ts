@@ -77,6 +77,8 @@ export const useGameStore = create<GameState>((set, get) => ({
         const yCoord = Math.floor(py)
         const xCoord = Math.floor(px)
 
+        // console.log(`Reveal request at: ${xCoord}, ${yCoord}`)
+
         const newExplored = [...state.exploredMap]
         let changed = false
 
@@ -85,7 +87,6 @@ export const useGameStore = create<GameState>((set, get) => ({
             if (!newExplored[y]) continue
             for (let x = xCoord - 1; x <= xCoord + 1; x++) {
                 if (newExplored[y][x] === false) {
-                    // Lazy-copy the row if we haven't already in this call
                     if (newExplored[y] === state.exploredMap[y]) {
                         newExplored[y] = [...state.exploredMap[y]]
                     }
@@ -94,6 +95,11 @@ export const useGameStore = create<GameState>((set, get) => ({
                 }
             }
         }
+
+        if (changed) {
+            // console.log(`Map updated`)
+        }
+
         return changed ? { exploredMap: newExplored } : {}
     }),
 
