@@ -357,15 +357,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 function generateLights(map: number[][], startPos: { x: number, y: number }): Light[] {
     const lights: Light[] = []
 
-    // 1. Guaranteed light at spawn
-    lights.push({
-        id: uuidv4(),
-        x: startPos.x,
-        y: startPos.y,
-        intensity: 2.5, // Slightly brighter spawn
-        color: '#ffaa00',
-        distance: 15
-    })
+    // NO spawn light - player has camera-attached lantern now
 
     // 2. Torches anchored to walls
     map.forEach((row, y) => {

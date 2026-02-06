@@ -1,5 +1,5 @@
-import { useFrame, useThree } from '@react-three/fiber'
-import { useEffect, useRef } from 'react'
+import { useFrame } from '@react-three/fiber'
+import { useRef } from 'react'
 import * as THREE from 'three'
 import { useGameStore, CELL_SIZE } from '../store/gameStore'
 
@@ -13,23 +13,7 @@ export default function CameraRig() {
     const targetPos = useRef(new THREE.Vector3()).current
     const targetQuat = useRef(new THREE.Quaternion()).current
     const dummyObject = useRef(new THREE.Object3D())
-
-    const { camera } = useThree()
-    const lanternRef = useRef<THREE.PointLight | null>(null)
-
-    // Create and attach lantern to camera ONCE
-    useEffect(() => {
-        const lantern = new THREE.PointLight('#ffcc66', 3.0, 10, 1.5)
-        lantern.position.set(0, 0, 0)
-        camera.add(lantern)
-        lanternRef.current = lantern
-        console.log('Lantern created and attached to camera')
-
-        return () => {
-            camera.remove(lantern)
-            lantern.dispose()
-        }
-    }, [camera])
+    const lightRef = useRef<THREE.PointLight>(null!)
 
     useFrame((state, delta) => {
         targetPos.set(
@@ -51,7 +35,25 @@ export default function CameraRig() {
             state.camera.position.y += (Math.random() - 0.5) * intensity
             state.camera.position.z += (Math.random() - 0.5) * intensity
         }
+
+        // Manually sync lantern position to camera every frame
+        if (lightRef.current) {
+            lightRef.current.position.copy(state.camera.position)
+
+            // Log occasionally to verify it's working
+            if (Math.random() < 0.01) {
+                console.log('Light synced to camera:', lightRef.current.position.toArray())
+            }
+        }
     })
 
-    return null // No JSX - light is managed imperatively
+    return (
+        <pointLight
+            ref={lightRef}
+            intensity={3.0}
+            distance={10}
+            color="#ffcc66"
+            decay={1.5}
+        />
+    )
 }
