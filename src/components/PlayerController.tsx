@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useGameStore } from '../store/gameStore'
+import { playAttackSound } from '../audio/audioIntegration'
 
 export default function PlayerController() {
     const moveForward = useGameStore((state) => state.moveForward)
@@ -38,6 +39,43 @@ export default function PlayerController() {
                     turnRight()
                     acted = true
                     break
+                case 'Space':
+                case 'KeyF': {
+                    // Check if we have an enemy to hit
+                    const state = useGameStore.getState()
+                    const { x, y } = state.playerPosition
+                    const dir = state.playerDirection
+                    let targetX = x, targetY = y
+                    if (dir === 0) targetY -= 1
+                    else if (dir === 1) targetX += 1
+                    else if (dir === 2) targetY += 1
+                    else targetX -= 1
+
+                    const hasTarget = state.enemies.some(e => e.x === targetX && e.y === targetY)
+                    const weaponType = state.inventory.equippedWeaponId ? 'sword' : 'fist'
+
+                    playAttackSound(hasTarget, weaponType)
+                    state.playerAttack()
+                    acted = true
+                    break
+                }
+                case 'KeyE':
+                    useGameStore.getState().pickupItem()
+                    acted = true
+                    break
+                case 'KeyQ': {
+                    // Cycle through weapons in inventory
+                    const state = useGameStore.getState()
+                    const weapons = state.inventory.items.filter(i => i.type === 'weapon')
+                    if (weapons.length === 0) break
+
+                    const currentIdx = weapons.findIndex(w => w.id === state.inventory.equippedWeaponId)
+                    const nextIdx = (currentIdx + 1) % weapons.length
+                    state.equipWeapon(weapons[nextIdx].id)
+                    console.log(`Equipped: ${weapons[nextIdx].name}`)
+                    acted = true
+                    break
+                }
             }
 
             if (acted) lastActionTime.current = now

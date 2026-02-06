@@ -2,8 +2,8 @@
 
 ## Current Position
 - **Milestone**: v0.4 (The Lantern & The Blade)
-- **Phase**: Not started
-- **Status**: Milestone v0.4 defined and ready for planning.
+- **Phase**: 2 Complete
+- **Status**: Arsenal balanced. Ready for Phase 3: Impact.
 
 ## Last Session Summary
 Finalized v0.3 (Illumination & Touch). Defined v0.4 requirements: wall lighting, combat juice, and exploration minimap.

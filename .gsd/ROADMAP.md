@@ -14,11 +14,11 @@
 ## Phases
 
 ### Phase 1: Radiance (Lighting & Atmosphere)
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Fix the "too dark" issue. Implement wall-anchored torches and a mobile player light.
 
 ### Phase 2: Arsenal (Combat & Items)
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Scale damage values and implement potion healing logic + procedural spawning.
 
 ### Phase 3: Impact (Feedback & Juice)

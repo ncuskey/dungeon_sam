@@ -4,6 +4,7 @@ export interface Enemy {
     y: number
     type: 'imp'
     hp: number
+    lastHurtTime?: number
 }
 
 export type ItemType = 'weapon' | 'potion' | 'key'

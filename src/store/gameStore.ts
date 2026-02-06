@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { generateDungeon } from '../utils/dungeonGenerator'
 import { moveEnemy } from '../utils/ai'
+import { playAttackSound } from '../audio/audioIntegration'
+import { soundManager } from '../audio/SoundManager'
 
 import { Enemy, Item, Inventory, Light } from '../types/game'
 import { v4 as uuidv4 } from 'uuid'
@@ -26,6 +28,7 @@ interface GameState {
     spawnEnemy: (x: number, y: number) => void
     tickGame: () => void
     playerHealth: number
+    shake: number
     playerAttack: () => void
 
     // Inventory
@@ -61,6 +64,7 @@ export const useGameStore = create<GameState>((set) => ({
     enemies,
     lights: initialLights,
     playerHealth: 100,
+    shake: 0,
 
     items: initialSpawnedItems,
     inventory: { items: [], maxSize: 5, equippedWeaponId: null },
@@ -108,6 +112,7 @@ export const useGameStore = create<GameState>((set) => ({
                 const newInvItems = [...state.inventory.items]
                 newInvItems.splice(itemIndex, 1)
                 console.log("Used potion, health:", newHealth)
+                soundManager.playHeal()
                 return {
                     playerHealth: newHealth,
                     inventory: { ...state.inventory, items: newInvItems }
@@ -206,7 +211,6 @@ export const useGameStore = create<GameState>((set) => ({
     })),
 
     playerAttack: () => set((state) => {
-        console.log("Player executing attack!")
         const { x, y } = state.playerPosition
         let targetX = x
         let targetY = y
@@ -219,8 +223,12 @@ export const useGameStore = create<GameState>((set) => ({
         }
 
         const enemy = state.enemies.find(e => e.x === targetX && e.y === targetY)
+        const equippedWeapon = state.inventory.items.find(i => i.id === state.inventory.equippedWeaponId)
+        const weaponType = (equippedWeapon?.name === 'Sword of Truth') ? 'sword' : 'fist'
+
+        playAttackSound(!!enemy, weaponType)
+
         if (enemy) {
-            const equippedWeapon = state.inventory.items.find(i => i.id === state.inventory.equippedWeaponId)
             const damage = equippedWeapon?.effectValue || 25 // Base punch damage
 
             console.log(`Attacking with ${equippedWeapon?.name || 'Fists'} for ${damage} damage`)
@@ -228,13 +236,13 @@ export const useGameStore = create<GameState>((set) => ({
             const newEnemies = state.enemies.map(e => {
                 if (e.id === enemy.id) {
                     const newHp = e.hp - damage
-                    return { ...e, hp: newHp }
+                    return { ...e, hp: newHp, lastHurtTime: performance.now() }
                 }
                 return e
             }).filter(e => e.hp > 0)
-            return { enemies: newEnemies }
+            return { enemies: newEnemies, shake: 0.5 }
         } else {
-            return {}
+            return { shake: 0.1 } // Small jitter on miss
         }
     }),
 
@@ -255,6 +263,7 @@ export const useGameStore = create<GameState>((set) => ({
 
         let takingDamage = false
         let newPlayerHealth = state.playerHealth
+        let newShake = Math.max(0, state.shake - 0.1) // Decay faster for cleaner feel
 
         // Build set of occupied positions (other enemies) to prevent stacking
         const occupiedSet = new Set<string>()
@@ -281,14 +290,19 @@ export const useGameStore = create<GameState>((set) => ({
 
         if (takingDamage) {
             newPlayerHealth = Math.max(0, newPlayerHealth - 5)
+            newShake = 1.0 // Violent shake on dmg
         }
 
         if (newPlayerHealth <= 0 && state.playerHealth > 0) {
             console.log("GAME OVER")
-            return { enemies: newEnemies, playerHealth: 0, phase: 'GAME_OVER' }
+            return { enemies: newEnemies, playerHealth: 0, phase: 'GAME_OVER', shake: 0 }
         }
 
-        return { enemies: newEnemies, playerHealth: newPlayerHealth }
+        return {
+            enemies: newEnemies,
+            playerHealth: newPlayerHealth,
+            shake: newShake
+        }
     })
 }))
 
