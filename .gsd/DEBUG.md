@@ -1,27 +1,37 @@
-# Debug Session: Light Sync & Map Reveal (v0.4.1)
+# Debug Session: Animation Mismatch & AI Dancing (v0.4.1)
 
 ## Symptom
-1. **Vanishing Lantern**: The player's light source (bloom) is not following the character as they move.
-2. **Infinite Fog**: The minimap remains black and does not reveal explored areas during movement.
+1. **Animation Lead**: The weapon animation finishes before the attack sound/store update completes.
+2. **AI Osciliation**: Enemies "dance around" instead of aggressively attacking the player.
+3. **Pacing Request**: Revert attack cooldown from 700ms to 500ms.
 
 **When:** During gameplay in v0.4.1.
 **Expected:**
-- A point light should stay centered on the player's view/position.
-- The minimap should reveal a 3x3 area around the player as they move forward or backward.
+- Weapon animation should align with the 500ms/700ms cooldown and sound.
+- Enemies should move towards the player and stay adjacent to deal damage.
 **Actual:**
-- Light stays at spawn (or doesn't move with camera).
-- Map stays hidden.
+- Animation is too fast.
+- Enemies appear to be oscillating or moving inefficiently.
 
 ## Evidence Gathering
-- [ ] Check `CameraRig.tsx` light position logic.
-- [ ] Check `gameStore.ts` `revealMap` coordinate conversion and state update logic.
-- [ ] Verify `moveForward`/`moveBackward` are correctly calling `get().revealMap()`.
+- [ ] Check `WeaponOverlay.tsx` animation duration/CSS.
+- [ ] Check `ai.ts` and `gameStore.ts` for enemy movement decisions.
+- [ ] Verify `moveEnemy` logic for "best" move.
 
 ## Hypotheses
 
 | # | Hypothesis | Likelihood | Status |
 |---|------------|------------|--------|
-| 1 | `CameraRig` is copying `state.camera.position` which might be at `[0,0,0]` initially or lerping slowly, but the light isn't actualy attached to the camera object in the Three scene. | 60% | UNTESTED |
-| 2 | `revealMap` uses `Math.floor(px)` which might be wrong if `px/py` are already grid integers, or if they are scaled. | 40% | UNTESTED |
-| 3 | `exploredMap` reference isn't changing correctly because the shallow copy logic for rows is slightly flawed or `set` is returning `{}` too often. | 50% | UNTESTED |
-| 4 | `moveForward` uses `get().revealMap(newX, newY)` but the `newX/newY` are grid coords, while the store expects world coords? (No, store seems to use grid). | 20% | UNTESTED |
+| 1 | `WeaponOverlay` uses a hardcoded CSS transition time (0.1s) and timeout (200ms) that doesn't match the store. | 100% | ✅ CONFIRMED |
+| 2 | `moveEnemy` always tries to move if a candidate has >= distance, even if already adjacent. | 90% | ✅ CONFIRMED |
+| 3 | `WeaponOverlay` listens to keydown directly, so the animation plays even when the store blocks the attack. | 100% | ✅ CONFIRMED |
+
+## Attempts
+
+### Attempt 1
+**Testing:** H1, H2, H3.
+**Action:** 
+1. Revert cooldown to 500ms in `gameStore.ts`.
+2. Update `WeaponOverlay.tsx` to subscribe to `lastAttackTime` and match 500ms duration.
+3. Update `ai.ts` to prevent moving if already adjacent to player.
+**Result:** Pending.

@@ -24,16 +24,25 @@ export function moveEnemy(
         { x: x - 1, y: y }, // W
     ]
 
+    // If already adjacent, STAY PUT (prevents dancing around)
+    const currentDist = distance(x, y, playerPos.x, playerPos.y)
+    if (currentDist === 1) {
+        return { x, y }
+    }
+
     // Sort candidates by distance to player
     candidates.sort((a, b) => distance(a.x, a.y, playerPos.x, playerPos.y) - distance(b.x, b.y, playerPos.x, playerPos.y))
 
     for (const cand of candidates) {
+        // ...
+        // Filter moves that don't actually bring us closer (or equal if we are far)
+        // Actually, sorting handles the "best", but we should prevent moving AWAY
+        // if we can't get closer.
+        const candDist = distance(cand.x, cand.y, playerPos.x, playerPos.y)
+        if (candDist >= currentDist) continue
+
         // 1. Is it the player's position?
-        if (cand.x === playerPos.x && cand.y === playerPos.y) {
-            // Can't move onto player (that would be an attack, handled separately or just blocked)
-            // For movement logic, just block
-            continue
-        }
+        if (cand.x === playerPos.x && cand.y === playerPos.y) continue
 
         // 2. Is it walkable?
         if (map[cand.y]?.[cand.x] !== 0) continue

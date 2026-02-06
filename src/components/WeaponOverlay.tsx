@@ -15,16 +15,17 @@ export default function WeaponOverlay() {
     // Simpler: Just listen for Space/F here too solely for visual feedback? 
     // Or add `lastAttackTime` to store. Let's add listener for now to decouple.
 
+    const lastAttackTime = useGameStore(state => state.lastAttackTime)
+    const [lastTrigger, setLastTrigger] = useState(0)
+
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.code === 'Space' || e.code === 'KeyF') {
-                setIsAttacking(true)
-                setTimeout(() => setIsAttacking(false), 200) // 200ms swing
-            }
+        if (lastAttackTime > 0 && lastAttackTime !== lastTrigger) {
+            setLastTrigger(lastAttackTime)
+            setIsAttacking(true)
+            const timer = setTimeout(() => setIsAttacking(false), 300) // 300ms swing/recovery
+            return () => clearTimeout(timer)
         }
-        window.addEventListener('keydown', handleKeyDown)
-        return () => window.removeEventListener('keydown', handleKeyDown)
-    }, [])
+    }, [lastAttackTime, lastTrigger])
 
     const weapon = items.find(i => i.id === equippedWeaponId)
     // const weaponName = weapon ? weapon.name : 'Fists'
@@ -48,9 +49,9 @@ export default function WeaponOverlay() {
                 width: '600px',
                 height: '400px',
                 marginBottom: '-20px',
-                transition: 'transform 0.1s',
+                transition: isAttacking ? 'transform 0.1s ease-out' : 'transform 0.4s ease-in-out',
                 transform: isAttacking
-                    ? 'rotate(-15deg) translateY(50px)'
+                    ? 'rotate(-20deg) translateY(40px) scale(1.1)'
                     : 'rotate(0deg)',
                 transformOrigin: 'bottom center',
                 display: 'flex',

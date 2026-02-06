@@ -240,7 +240,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     playerAttack: () => set((state) => {
         const now = performance.now()
         const diff = now - state.lastAttackTime
-        if (diff < 700) { // Increased to 0.7s to feel more deliberate
+        if (diff < 500) { // Reverted to 0.5s
             return {}
         }
 
