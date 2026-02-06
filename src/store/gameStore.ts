@@ -297,12 +297,15 @@ export const useGameStore = create<GameState>((set, get) => ({
         let newShake = Math.max(0, state.shake - 0.1)
 
         // Check for damage based on NEW positions
-        const isNearEnemy = newEnemies.some(e =>
-            Math.abs(e.x - state.playerPosition.x) + Math.abs(e.y - state.playerPosition.y) <= 1
-        )
+        // Allow diagonal hits (Manhattan distance 2 but only if dx and dy are 1)
+        const isNearEnemy = newEnemies.some(e => {
+            const dx = Math.abs(e.x - state.playerPosition.x)
+            const dy = Math.abs(e.y - state.playerPosition.y)
+            return (dx <= 1 && dy <= 1) && (dx + dy > 0) // Manhattan 1 or diagonal
+        })
 
         if (isNearEnemy) {
-            if (playerHealth > 0 && Math.random() < 0.15) { // 15% chance
+            if (playerHealth > 0 && Math.random() < 0.3) { // 30% chance
                 playerHealth -= 5
                 newShake = 1.0
                 soundManager.playHurt()

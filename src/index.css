@@ -7,8 +7,16 @@ body {
   -webkit-user-select: none;
 }
 
-canvas {
+#root {
   width: 100vw;
   height: 100vh;
+}
+
+/* Only the main game canvas should be full screen. 
+   React Three Fiber's <Canvas> results in a canvas that is usually a direct child or nested.
+   By removing the global 'canvas' rule, we prevent the Minimap from stretching. */
+canvas.main-game {
+  width: 100%;
+  height: 100%;
   display: block;
 }

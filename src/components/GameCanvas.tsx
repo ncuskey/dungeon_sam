@@ -13,7 +13,7 @@ function GameCanvas({ children }: GameCanvasProps) {
     useGameLoop()
 
     return (
-        <Canvas camera={{ fov: 75 }}>
+        <Canvas camera={{ fov: 75 }} className="main-game">
             <ambientLight intensity={0.25} />
             {/* <directionalLight position={[0, 10, 0]} intensity={0.3} /> Removed for dynamic lighting atmosphere */}
 

@@ -1,37 +1,31 @@
-# Debug Session: Animation Mismatch & AI Dancing (v0.4.1)
+# Debug Session: Minimap Zoom Issue (v0.4.1)
 
 ## Symptom
-1. **Animation Lead**: The weapon animation finishes before the attack sound/store update completes.
-2. **AI Osciliation**: Enemies "dance around" instead of aggressively attacking the player.
-3. **Pacing Request**: Revert attack cooldown from 700ms to 500ms.
+1. **Viewport mismatch**: The minimap is "zoomed in too far", potentially preventing the user from seeing their progress or the full context.
+2. **Perception**: Because it's too zoomed in, it "seems like it isn't working" (possibly just showing a solid block of floor/wall).
 
 **When:** During gameplay in v0.4.1.
-**Expected:**
-- Weapon animation should align with the 500ms/700ms cooldown and sound.
-- Enemies should move towards the player and stay adjacent to deal damage.
-**Actual:**
-- Animation is too fast.
-- Enemies appear to be oscillating or moving inefficiently.
+**Expected:** The minimap should show a reasonable portion of the explored dungeon, centered on the player or showing the full map if small enough.
+**Actual:** View is too tight.
 
 ## Evidence Gathering
-- [ ] Check `WeaponOverlay.tsx` animation duration/CSS.
-- [ ] Check `ai.ts` and `gameStore.ts` for enemy movement decisions.
-- [ ] Verify `moveEnemy` logic for "best" move.
+- [ ] Check `dungeonGenerator.ts` for MAP_SIZE.
+- [ ] Check `Minimap.tsx` for hardcoded `CELL_SIZE` and canvas dimensions.
+- [ ] Verify if the map is being cropped by the canvas size.
 
 ## Hypotheses
 
 | # | Hypothesis | Likelihood | Status |
 |---|------------|------------|--------|
-| 1 | `WeaponOverlay` uses a hardcoded CSS transition time (0.1s) and timeout (200ms) that doesn't match the store. | 100% | ✅ CONFIRMED |
-| 2 | `moveEnemy` always tries to move if a candidate has >= distance, even if already adjacent. | 90% | ✅ CONFIRMED |
-| 3 | `WeaponOverlay` listens to keydown directly, so the animation plays even when the store blocks the attack. | 100% | ✅ CONFIRMED |
+| 1 | The map is larger than 30x30, but `Minimap.tsx` uses a fixed `CELL_SIZE=5` and `canvas=150px`, causing it to only show the top-most 30x30 cells. | 80% | UNTESTED |
+| 2 | The user wants a "global" view but the current logic is too zoomed in for their taste. | 40% | UNTESTED |
+| 3 | The player is moving out of the 150x150 viewport and into the "black" area because the map doesn't scroll/centered. | 70% | UNTESTED |
 
 ## Attempts
 
 ### Attempt 1
-**Testing:** H1, H2, H3.
+**Testing:** H1 & H3.
 **Action:** 
-1. Revert cooldown to 500ms in `gameStore.ts`.
-2. Update `WeaponOverlay.tsx` to subscribe to `lastAttackTime` and match 500ms duration.
-3. Update `ai.ts` to prevent moving if already adjacent to player.
+1. Dynamically calculate `CELL_SIZE` based on actual map dimensions (or center the view on the player).
+2. Implement a "follow player" scrolling minimap logic to ensure they never walk off the edge.
 **Result:** Pending.
