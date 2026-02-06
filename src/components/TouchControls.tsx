@@ -2,7 +2,7 @@ import React from 'react'
 import { useGameStore } from '../store/gameStore'
 
 export default function TouchControls() {
-    const { phase, moveForward, moveBackward, turnLeft, turnRight, playerAttack, inventory, equipWeapon, pickupItem } = useGameStore()
+    const { phase, moveForward, moveBackward, turnLeft, turnRight, playerAttack, inventory, equipWeapon, pickupItem, useItem } = useGameStore()
 
     if (phase !== 'PLAYING') return null
 
@@ -117,15 +117,27 @@ export default function TouchControls() {
                     }}
                 >🔄</div>
 
-                {/* INTERACT (Simulate E) - We don't have direct interact action in store yet besides pickup, 
-                    but HUD might show current interaction. 
-                    Actually, let's look at Pickup. 
-                    Ah, store has `pickupItem` but we decided not to auto-pickup. 
-                    Let's expose pickupItem in store? Or just rely on Attack for interaction?
-                    Wait, previous code analysis showed we removed auto-pickup and rely on 'E'.
-                    So I need to expose pickupItem in `useGameStore`.
-                    I will assume it is exposed or use it if available.
-                */}
+                {/* HEAL (Potion) */}
+                <div
+                    onTouchStart={(e) => {
+                        e.preventDefault()
+                        const potion = inventory.items.find(i => i.type === 'potion')
+                        if (potion) useItem(potion.id)
+                    }}
+                    style={{
+                        ...btnStyle,
+                        position: 'absolute',
+                        bottom: '70px',
+                        left: '0px',
+                        width: '60px',
+                        height: '60px',
+                        fontSize: '20px',
+                        background: 'rgba(50, 200, 50, 0.4)',
+                        borderColor: 'rgba(100, 255, 100, 0.6)'
+                    }}
+                >🧪</div>
+
+                {/* INTERACT (Simulate E) */}
                 <div
                     onTouchStart={(e) => {
                         e.preventDefault()

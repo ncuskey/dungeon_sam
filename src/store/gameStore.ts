@@ -39,7 +39,7 @@ interface GameState {
     resetGame: () => void
 }
 
-const { map: initialMap, startPosition, exitPosition, initialEnemies } = generateDungeon()
+const { map: initialMap, startPosition, exitPosition, initialEnemies, initialItems: initialSpawnedItems } = generateDungeon()
 
 // Convert raw positions to Enemy objects
 const enemies: Enemy[] = initialEnemies.map(pos => ({
@@ -62,7 +62,7 @@ export const useGameStore = create<GameState>((set) => ({
     lights: initialLights,
     playerHealth: 100,
 
-    items: [],
+    items: initialSpawnedItems,
     inventory: { items: [], maxSize: 5, equippedWeaponId: null },
 
     pickupItem: () => set((state) => {
@@ -120,7 +120,7 @@ export const useGameStore = create<GameState>((set) => ({
     startGame: () => set({ phase: 'PLAYING' }),
 
     resetGame: () => {
-        const { map, startPosition, exitPosition, initialEnemies } = generateDungeon()
+        const { map, startPosition, exitPosition, initialEnemies, initialItems } = generateDungeon()
         const newEnemies = initialEnemies.map(pos => ({
             id: uuidv4(),
             x: pos.x,
@@ -129,34 +129,13 @@ export const useGameStore = create<GameState>((set) => ({
             hp: 100
         }))
 
-        // Spawn some dummy items for now
-        const dummyItems: Item[] = []
-        // Find a random free spot? Just hardcode near start for testing
-        // Start is usually map center-ish.
-        dummyItems.push({
-            id: uuidv4(),
-            x: startPosition.x + 2,
-            y: startPosition.y,
-            type: 'weapon',
-            name: 'Sword of Truth',
-            effectValue: 20
-        })
-        dummyItems.push({
-            id: uuidv4(),
-            x: startPosition.x + 1,
-            y: startPosition.y,
-            type: 'potion',
-            name: 'Health Potion',
-            effectValue: 50
-        })
-
         set({
             phase: 'PLAYING',
             map,
             playerPosition: startPosition,
             exitPosition,
             enemies: newEnemies,
-            items: dummyItems,
+            items: initialItems,
             inventory: { items: [], maxSize: 5, equippedWeaponId: null },
             playerHealth: 100,
             playerDirection: 1,
