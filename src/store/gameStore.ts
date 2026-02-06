@@ -50,6 +50,8 @@ const enemies: Enemy[] = initialEnemies.map(pos => ({
     hp: 100
 }))
 
+const initialLights = generateLights(initialMap, startPosition)
+
 export const useGameStore = create<GameState>((set) => ({
     phase: 'MENU',
     playerPosition: startPosition,
@@ -57,7 +59,7 @@ export const useGameStore = create<GameState>((set) => ({
     map: initialMap,
     exitPosition,
     enemies,
-    lights: [], // Will be populated on resetGame/init
+    lights: initialLights,
     playerHealth: 100,
 
     items: [],
@@ -225,6 +227,7 @@ export const useGameStore = create<GameState>((set) => ({
     })),
 
     playerAttack: () => set((state) => {
+        console.log("Player executing attack!")
         const { x, y } = state.playerPosition
         let targetX = x
         let targetY = y
@@ -318,28 +321,41 @@ function generateLights(map: number[][], startPos: { x: number, y: number }): Li
         id: uuidv4(),
         x: startPos.x,
         y: startPos.y,
-        intensity: 2, // Bright
+        intensity: 2.5, // Slightly brighter spawn
         color: '#ffaa00',
         distance: 15
     })
 
-    // 2. Random torches in hallways
+    // 2. Torches anchored to walls
     map.forEach((row, y) => {
         row.forEach((cell, x) => {
             if (cell === 0) { // Floor
                 // Don't put light exactly at spawn again
                 if (x === startPos.x && y === startPos.y) return
 
-                // 10% chance for a torch
-                if (Math.random() < 0.10) {
-                    lights.push({
-                        id: uuidv4(),
-                        x,
-                        y,
-                        intensity: 1.5,
-                        color: '#ff9900', // Torchy orange
-                        distance: 12
-                    })
+                // 8% chance for a torch if next to a wall
+                if (Math.random() < 0.08) {
+                    // Check neighbors for walls
+                    const neighbors = [
+                        { dx: 0, dy: -1 }, // North
+                        { dx: 1, dy: 0 },  // East
+                        { dx: 0, dy: 1 },  // South
+                        { dx: -1, dy: 0 }  // West
+                    ]
+
+                    const wallNeighbor = neighbors.find(n => map[y + n.dy]?.[x + n.dx] === 1)
+
+                    if (wallNeighbor) {
+                        // Offset the light 0.4 units towards the wall neighbor
+                        lights.push({
+                            id: uuidv4(),
+                            x: x + (wallNeighbor.dx * 0.4),
+                            y: y + (wallNeighbor.dy * 0.4),
+                            intensity: 2.0,
+                            color: '#ff7700', // Deeper orange
+                            distance: 14
+                        })
+                    }
                 }
             }
         })

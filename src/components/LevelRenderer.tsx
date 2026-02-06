@@ -68,16 +68,21 @@ export default function LevelRenderer() {
                 <meshStandardMaterial map={ceilingTexture} side={THREE.DoubleSide} />
             </mesh>
 
-            {/* Dynamic Lights */}
+            {/* Dynamic Lights & Torch Visuals */}
             {lights.map(light => (
-                <pointLight
-                    key={light.id}
-                    position={[light.x * CELL_SIZE, CELL_SIZE * 0.8, light.y * CELL_SIZE]}
-                    intensity={light.intensity}
-                    color={light.color}
-                    distance={light.distance}
-                    decay={2}
-                />
+                <group key={light.id} position={[light.x * CELL_SIZE, CELL_SIZE * 0.7, light.y * CELL_SIZE]}>
+                    <pointLight
+                        intensity={light.intensity}
+                        color={light.color}
+                        distance={light.distance}
+                        decay={1.5} // Slightly lower decay for better spread
+                    />
+                    {/* Visual Torch Marker */}
+                    <mesh>
+                        <sphereGeometry args={[0.05, 8, 8]} />
+                        <meshBasicMaterial color={light.color} />
+                    </mesh>
+                </group>
             ))}
         </group>
     )

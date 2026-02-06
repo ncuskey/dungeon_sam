@@ -13,6 +13,7 @@ export default function CameraRig() {
     const targetPos = new THREE.Vector3()
     const targetQuat = new THREE.Quaternion()
     const dummyObject = useRef(new THREE.Object3D()) // Helper for rotation calc
+    const lightRef = useRef<THREE.PointLight>(null!)
 
     useFrame((state, delta) => {
         // Calculate target position
@@ -43,7 +44,20 @@ export default function CameraRig() {
         const speed = 10 * delta
         state.camera.position.lerp(targetPos, speed)
         state.camera.quaternion.slerp(targetQuat, speed)
+
+        // Sync light position
+        if (lightRef.current) {
+            lightRef.current.position.copy(state.camera.position)
+        }
     })
 
-    return null
+    return (
+        <pointLight
+            ref={lightRef}
+            intensity={1.2}
+            distance={6}
+            color="#ffcc66"
+            decay={2}
+        />
+    )
 }

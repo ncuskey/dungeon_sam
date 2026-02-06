@@ -14,7 +14,7 @@ function GameCanvas({ children }: GameCanvasProps) {
 
     return (
         <Canvas camera={{ fov: 75 }}>
-            <ambientLight intensity={0.2} />
+            <ambientLight intensity={0.25} />
             {/* <directionalLight position={[0, 10, 0]} intensity={0.3} /> Removed for dynamic lighting atmosphere */}
 
             <LevelRenderer />
