@@ -29,7 +29,11 @@ interface GameState {
     tickGame: () => void
     playerHealth: number
     shake: number
+    exploredMap: boolean[][] // For minimap fog-of-war
     playerAttack: () => void
+
+    // Exploration
+    revealMap: (x: number, y: number) => void
 
     // Inventory
     items: Item[] // Items on ground
@@ -55,7 +59,7 @@ const enemies: Enemy[] = initialEnemies.map(pos => ({
 
 const initialLights = generateLights(initialMap, startPosition)
 
-export const useGameStore = create<GameState>((set) => ({
+export const useGameStore = create<GameState>((set, get) => ({
     phase: 'MENU',
     playerPosition: startPosition,
     playerDirection: 1, // Facing East
@@ -65,6 +69,23 @@ export const useGameStore = create<GameState>((set) => ({
     lights: initialLights,
     playerHealth: 100,
     shake: 0,
+    exploredMap: Array(initialMap.length).fill(null).map(() => Array(initialMap[0].length).fill(false)),
+
+    revealMap: (px, py) => set((state) => {
+        const newExplored = [...state.exploredMap]
+        let changed = false
+        // Reveal 3x3
+        for (let y = py - 1; y <= py + 1; y++) {
+            for (let x = px - 1; x <= px + 1; x++) {
+                if (newExplored[y] && newExplored[y][x] === false) {
+                    newExplored[y] = [...newExplored[y]]
+                    newExplored[y][x] = true
+                    changed = true
+                }
+            }
+        }
+        return changed ? { exploredMap: newExplored } : {}
+    }),
 
     items: initialSpawnedItems,
     inventory: { items: [], maxSize: 5, equippedWeaponId: null },
@@ -122,7 +143,11 @@ export const useGameStore = create<GameState>((set) => ({
         return {}
     }),
 
-    startGame: () => set({ phase: 'PLAYING' }),
+    startGame: () => {
+        const state = get()
+        state.revealMap(state.playerPosition.x, state.playerPosition.y)
+        set({ phase: 'PLAYING' })
+    },
 
     resetGame: () => {
         const { map, startPosition, exitPosition, initialEnemies, initialItems } = generateDungeon()
@@ -144,8 +169,10 @@ export const useGameStore = create<GameState>((set) => ({
             inventory: { items: [], maxSize: 5, equippedWeaponId: null },
             playerHealth: 100,
             playerDirection: 1,
-            lights: generateLights(map, startPosition)
+            lights: generateLights(map, startPosition),
+            exploredMap: Array(map.length).fill(null).map(() => Array(map[0].length).fill(false))
         })
+        get().revealMap(startPosition.x, startPosition.y)
     },
 
     moveForward: () => set((state) => {
@@ -197,6 +224,7 @@ export const useGameStore = create<GameState>((set) => ({
         }
 
         if (state.map[newY]?.[newX] === 0) {
+            state.revealMap(newX, newY)
             return { playerPosition: { x: newX, y: newY } }
         }
         return {}

@@ -6,6 +6,7 @@ import HUD from './components/HUD'
 import GameOverlay from './components/GameOverlay'
 import WeaponOverlay from './components/WeaponOverlay'
 import TouchControls from './components/TouchControls'
+import Minimap from './components/Minimap'
 
 function App() {
     return (
@@ -16,6 +17,7 @@ function App() {
             <PlayerController />
             <HUD />
             <TouchControls />
+            <Minimap />
             <GameOverlay />
             <WeaponOverlay />
         </>

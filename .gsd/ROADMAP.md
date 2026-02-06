@@ -22,7 +22,7 @@
 **Objective**: Scale damage values and implement potion healing logic + procedural spawning.
 
 ### Phase 3: Impact (Feedback & Juice)
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Add visual and auditory feedback for combat (screen shake, damage numbers, or flashes).
 
 ### Phase 4: Cartography (Minimap)
