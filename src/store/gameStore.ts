@@ -191,9 +191,8 @@ export const useGameStore = create<GameState>((set, get) => ({
         get().revealMap(startPosition.x, startPosition.y)
     },
 
-    moveForward: () => {
-        const state = get()
-        if (state.phase !== 'PLAYING') return
+    moveForward: () => set((state) => {
+        if (state.phase !== 'PLAYING') return {}
 
         const { x, y } = state.playerPosition
         const dir = state.playerDirection
@@ -205,14 +204,29 @@ export const useGameStore = create<GameState>((set, get) => ({
         else newX -= 1
 
         if (state.map[newY]?.[newX] === 0) {
-            set({ playerPosition: { x: newX, y: newY } })
-            get().revealMap(newX, newY)
+            // Merged reveal logic with deep copy fix
+            const newExplored = [...state.exploredMap]
+            for (let ry = newY - 1; ry <= newY + 1; ry++) {
+                if (!newExplored[ry]) continue
+                for (let rx = newX - 1; rx <= newX + 1; rx++) {
+                    if (newExplored[ry][rx] === false) {
+                        if (newExplored[ry] === state.exploredMap[ry]) {
+                            newExplored[ry] = [...state.exploredMap[ry]]
+                        }
+                        newExplored[ry][rx] = true
+                    }
+                }
+            }
+            return {
+                playerPosition: { x: newX, y: newY },
+                exploredMap: newExplored
+            }
         }
-    },
+        return {}
+    }),
 
-    moveBackward: () => {
-        const state = get()
-        if (state.phase !== 'PLAYING') return
+    moveBackward: () => set((state) => {
+        if (state.phase !== 'PLAYING') return {}
 
         const { x, y } = state.playerPosition
         const dir = state.playerDirection
@@ -224,10 +238,26 @@ export const useGameStore = create<GameState>((set, get) => ({
         else newX += 1
 
         if (state.map[newY]?.[newX] === 0) {
-            set({ playerPosition: { x: newX, y: newY } })
-            get().revealMap(newX, newY)
+            // Merged reveal logic with deep copy fix
+            const newExplored = [...state.exploredMap]
+            for (let ry = newY - 1; ry <= newY + 1; ry++) {
+                if (!newExplored[ry]) continue
+                for (let rx = newX - 1; rx <= newX + 1; rx++) {
+                    if (newExplored[ry][rx] === false) {
+                        if (newExplored[ry] === state.exploredMap[ry]) {
+                            newExplored[ry] = [...state.exploredMap[ry]]
+                        }
+                        newExplored[ry][rx] = true
+                    }
+                }
+            }
+            return {
+                playerPosition: { x: newX, y: newY },
+                exploredMap: newExplored
+            }
         }
-    },
+        return {}
+    }),
 
     turnLeft: () => set((state) => ({
         playerDirection: (state.playerDirection + 3) % 4 as Direction

@@ -6,17 +6,8 @@ export default function WeaponOverlay() {
     const items = useGameStore(state => state.inventory.items)
     const [isAttacking, setIsAttacking] = useState(false)
 
-    // Subscribe to attack trigger? 
-    // Usually we'd want transient state for animation.
-    // gameStore doesn't expose an "attack trigger" event easily unless we subscribe or add a timestamp.
-    // For MVP, let's bind to the key press or add a 'lastAttackTime' to store?
-    // Actually PlayerController calls `playerAttack`. We could use a standard React state here 
-    // IF we moved input handling up or exposed an event bus.
-    // Simpler: Just listen for Space/F here too solely for visual feedback? 
-    // Or add `lastAttackTime` to store. Let's add listener for now to decouple.
-
     const lastAttackTime = useGameStore(state => state.lastAttackTime)
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     useEffect(() => {
         if (lastAttackTime > 0) {
@@ -29,7 +20,7 @@ export default function WeaponOverlay() {
             timeoutRef.current = setTimeout(() => {
                 setIsAttacking(false)
                 timeoutRef.current = null
-            }, 400) // Slightly longer to ensure it's visible before resetting
+            }, 300) // Reset quickly to match 500ms cadence
         }
 
         return () => {
@@ -38,9 +29,7 @@ export default function WeaponOverlay() {
     }, [lastAttackTime])
 
     const weapon = items.find(i => i.id === equippedWeaponId)
-    // const weaponName = weapon ? weapon.name : 'Fists'
 
-    // Simple CSS visual for now
     return (
         <div style={{
             position: 'absolute',
@@ -79,14 +68,13 @@ export default function WeaponOverlay() {
                     />
                 ) : (
                     <div style={{ display: 'flex', gap: '50px' }}>
-                        {/* Fists are usually split left/right, but let's just show right for update simplicity or both? */}
-                        {/* Doom fists are centered. Let's try to center them. */}
                         <img
                             src="/fist_left.png"
                             alt="Left Fist"
                             style={{
                                 width: '300px',
                                 imageRendering: 'pixelated',
+                                transition: 'transform 0.1s',
                                 transform: isAttacking ? 'translateY(-20px)' : 'none'
                             }}
                         />
@@ -96,7 +84,8 @@ export default function WeaponOverlay() {
                             style={{
                                 width: '300px',
                                 imageRendering: 'pixelated',
-                                transform: isAttacking ? 'translateY(-50px) translateX(-20px)' : 'none' // Punch with right
+                                transition: 'transform 0.1s',
+                                transform: isAttacking ? 'translateY(-50px) translateX(-20px)' : 'none'
                             }}
                         />
                     </div>

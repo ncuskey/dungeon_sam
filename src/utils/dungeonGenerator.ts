@@ -245,6 +245,7 @@ export function generateDungeon() {
         // Potions - rarer and capped
         let roomPotions = 0
         for (let py = room.y; py < room.y + room.h; py++) {
+            if (roomPotions >= 2) break
             for (let px = room.x; px < room.x + room.w; px++) {
                 if (roomPotions >= 2) break
                 // Don't spawn on start/exit or existing items
