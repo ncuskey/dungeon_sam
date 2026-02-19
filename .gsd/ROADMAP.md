@@ -12,7 +12,7 @@
 ## Phases
 
 ### Phase 1: Asset Foundation
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Load all new sprite assets and update `LevelRenderer` to support multi-perspective torches.
 
 ### Phase 2: The Goblin Horde

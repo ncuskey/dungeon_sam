@@ -4,6 +4,11 @@ import Billboard from './Billboard'
 export default function EnemyRenderer() {
     const enemies = useGameStore((state) => state.enemies)
 
+    const getEnemyTexture = (type: string) => {
+        if (type === 'goblin') return '/goblin.png'
+        return '/The_Watcher.png'
+    }
+
     return (
         <group>
             {enemies.map((enemy) => (
@@ -15,7 +20,7 @@ export default function EnemyRenderer() {
                         enemy.y * CELL_SIZE
                     ]}
                     scale={[1.5, 1.5, 1.5]}
-                    textureUrl="/The_Watcher.png"
+                    textureUrl={getEnemyTexture(enemy.type)}
                     hp={enemy.hp}
                     lastHurtTime={enemy.lastHurtTime}
                 />

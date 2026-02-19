@@ -2,12 +2,12 @@ export interface Enemy {
     id: string
     x: number
     y: number
-    type: 'imp'
+    type: 'imp' | 'goblin'
     hp: number
     lastHurtTime?: number
 }
 
-export type ItemType = 'weapon' | 'potion' | 'key'
+export type ItemType = 'weapon' | 'potion' | 'key' | 'shield'
 
 export interface Item {
     id: string

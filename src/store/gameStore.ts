@@ -50,15 +50,27 @@ interface GameState {
 const { map: initialMap, startPosition, exitPosition, initialEnemies, initialItems: initialSpawnedItems } = generateDungeon()
 
 // Convert raw positions to Enemy objects
-const enemies: Enemy[] = initialEnemies.map(pos => ({
+const enemies: Enemy[] = initialEnemies.map((pos, index) => ({
     id: uuidv4(),
     x: pos.x,
     y: pos.y,
-    type: 'imp',
+    type: index === 0 ? 'goblin' : 'imp',
     hp: 100
 }))
 
 const initialLights = generateLights(initialMap, startPosition)
+
+const initialItemsWithShield = [
+    ...initialSpawnedItems,
+    {
+        id: uuidv4(),
+        x: startPosition.x,
+        y: startPosition.y,
+        type: 'shield' as const,
+        name: 'Iron Shield',
+        effectValue: 10
+    }
+]
 
 export const useGameStore = create<GameState>((set, get) => ({
     phase: 'MENU',
@@ -103,7 +115,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         return changed ? { exploredMap: newExplored } : {}
     }),
 
-    items: initialSpawnedItems,
+    items: initialItemsWithShield,
     inventory: { items: [], maxSize: 5, equippedWeaponId: null },
 
     pickupItem: () => set((state) => {

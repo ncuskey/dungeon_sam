@@ -2,6 +2,7 @@ import { useGameStore, CELL_SIZE } from '../store/gameStore'
 import { useMemo } from 'react'
 import { createTextures } from '../utils/textureGenerator'
 import * as THREE from 'three'
+import Billboard from './Billboard'
 
 export default function LevelRenderer() {
     const map = useGameStore((state) => state.map)
@@ -78,10 +79,11 @@ export default function LevelRenderer() {
                         decay={1.5} // Slightly lower decay for better spread
                     />
                     {/* Visual Torch Marker */}
-                    <mesh>
-                        <sphereGeometry args={[0.05, 8, 8]} />
-                        <meshBasicMaterial color={light.color} />
-                    </mesh>
+                    <Billboard
+                        position={[0, 0, 0]}
+                        scale={[0.5, 0.5, 0.5]}
+                        textureUrl="/torch_front.png"
+                    />
                 </group>
             ))}
         </group>
