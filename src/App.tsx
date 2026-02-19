@@ -7,8 +7,11 @@ import GameOverlay from './components/GameOverlay'
 import WeaponOverlay from './components/WeaponOverlay'
 import TouchControls from './components/TouchControls'
 import Minimap from './components/Minimap'
+import { useGameStore } from './store/gameStore'
 
 function App() {
+    const isMobile = useGameStore(state => state.isMobile)
+
     return (
         <>
             <GameCanvas>
@@ -16,7 +19,7 @@ function App() {
             </GameCanvas>
             <PlayerController />
             <HUD />
-            <TouchControls />
+            {isMobile && <TouchControls />}
             <Minimap />
             <GameOverlay />
             <WeaponOverlay />

@@ -12,7 +12,7 @@
 ## Phases
 
 ### Phase 1: Platform & UI Layout
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Implement desktop/mobile detection and relocate sound controls to the top-left.
 
 ### Phase 2: Game State Control

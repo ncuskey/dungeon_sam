@@ -1,0 +1,17 @@
+#!/usr/bin/expect -f
+set timeout 120
+# Load password from .env
+set password [exec grep GIT_SSH_PASSWORD .env | cut -d= -f2]
+
+spawn git push origin master --tags --force
+expect {
+    "Enter passphrase for key*" {
+        send "$password\r"
+        exp_continue
+    }
+    timeout {
+        puts "Timed out waiting for prompt"
+        exit 1
+    }
+    eof
+}

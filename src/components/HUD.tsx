@@ -46,7 +46,7 @@ export default function HUD() {
                 style={{
                     position: 'fixed',
                     top: '20px',
-                    right: '20px',
+                    left: '20px',
                     padding: '10px 15px',
                     background: 'rgba(0,0,0,0.6)',
                     border: '2px solid #888',
