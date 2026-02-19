@@ -46,7 +46,12 @@ export default function LevelRenderer() {
     doorTexture.minFilter = THREE.NearestFilter
 
     const doors = useMemo(() => {
-        const doorData: { key: string; position: [number, number, number]; rotation: [number, number, number] }[] = []
+        const doorData: {
+            key: string;
+            pivotPosition: [number, number, number];
+            meshPosition: [number, number, number];
+            rotation: [number, number, number]
+        }[] = []
         map.forEach((row, y) => {
             row.forEach((cell, x) => {
                 if (cell === 2 || cell === 3) {
@@ -56,11 +61,28 @@ export default function LevelRenderer() {
                     const isEwPassage = wallN && wallS
 
                     const isOpen = cell === 3
+                    const baseRotation = isEwPassage ? Math.PI / 2 : 0
+                    const swingRotation = isOpen ? -Math.PI / 2 : 0
+
+                    // Pivot is at the corner of the cell
+                    let pivotX = x * CELL_SIZE
+                    let pivotZ = y * CELL_SIZE
+                    let offsetX = 0
+                    let offsetZ = 0
+
+                    if (isEwPassage) {
+                        pivotZ -= CELL_SIZE / 2
+                        offsetZ = CELL_SIZE / 2
+                    } else {
+                        pivotX -= CELL_SIZE / 2
+                        offsetX = CELL_SIZE / 2
+                    }
 
                     doorData.push({
                         key: `door-${x}-${y}`,
-                        position: [x * CELL_SIZE, CELL_SIZE / 2, y * CELL_SIZE],
-                        rotation: [0, (isEwPassage ? Math.PI / 2 : 0) + (isOpen ? Math.PI / 2.5 : 0), 0]
+                        pivotPosition: [pivotX, CELL_SIZE / 2, pivotZ],
+                        meshPosition: [offsetX, 0, offsetZ],
+                        rotation: [0, baseRotation + swingRotation, 0]
                     })
                 }
             })
@@ -113,10 +135,12 @@ export default function LevelRenderer() {
 
             {/* Doors */}
             {doors.map((door) => (
-                <mesh key={door.key} position={door.position} rotation={door.rotation}>
-                    <boxGeometry args={[CELL_SIZE, CELL_SIZE, 0.1]} />
-                    <meshStandardMaterial map={doorTexture} transparent alphaTest={0.5} />
-                </mesh>
+                <group key={door.key} position={door.pivotPosition} rotation={door.rotation}>
+                    <mesh position={door.meshPosition}>
+                        <boxGeometry args={[CELL_SIZE, CELL_SIZE, 0.1]} />
+                        <meshStandardMaterial map={doorTexture} transparent alphaTest={0.5} />
+                    </mesh>
+                </group>
             ))}
 
             {/* Dynamic Lights & Torch Visuals */}
