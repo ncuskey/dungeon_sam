@@ -4,10 +4,10 @@
 **Milestone**: v0.5 "Goblins & Torches"
 **Phase**: 5 (completed)
 **Task**: Polished & Refined
-**Status**: Milestone v0.5 Deployed & Fully Polished
+**Status**: COMPLETED ✅
 
 ## Last Session Summary
-Successfully completed and deployed Milestone v0.5 "Goblins & Torches". Refined torch perspective logic to be view-direction based, ensuring front views show on perpendicular walls and side views show on parallel walls correctly. Verified on live site.
+Successfully concluded Milestone v0.5 "Goblins & Torches". Archied phase documentation, generated audit report, and verified all must-haves on the live site. The environment visuals (torches/doors) are now stable and logically sound. 
 
 ## Next Steps
 1. Plan Milestone v0.6 (e.g., Level 2, Keys/Locks, or Boss Enemy).

@@ -1,37 +1,30 @@
 # ROADMAP.md
 
-> **Current Milestone**: v0.5 "Goblins & Torches"
-> **Goal**: Expand enemy variety and environmental immersion using new assets.
+> **Current Milestone**: v0.6 "Keys & Gates"
+> **Goal**: Implement progression mechanics with locked doors, keys, and level transitions.
 
 ## Must-Haves
-- [x] New Goblin enemy type with specific AI/stats
-- [x] Shield item integrated into combat/inventory
-- [x] Multi-perspective wall torches (Front, Left, Right)
-- [x] Visual update for doors using new "Door Fit.png" asset
+- [ ] Key items for inventory
+- [ ] Locked doors rendering different variant/color
+- [ ] Level transition pads (to Level 2)
+- [ ] Multi-level BSP generation support
 
 ## Phases
 
-### Phase 1: Asset Foundation
-**Status**: ✅ Complete
-**Objective**: Load all new sprite assets and update `LevelRenderer` to support multi-perspective torches.
+### Phase 1: Planning & Infrastructure
+**Status**: ⬜ Not Started
+**Objective**: Setup multi-level support in `gameStore` and define door-lock logic.
 
-### Phase 2: The Goblin Horde
-**Status**: ✅ Complete
-**Objective**: Implement the Goblin enemy type, including movement speed variations and health stats.
+---
 
-### Phase 3: Shield & Defense
-**Status**: ✅ Complete
-**Objective**: Implement blocking mechanics using the new shield asset.
+## Completed Milestones
 
-### Phase 4: Environmental Overhaul
-**Status**: ✅ Complete
-**Goal**: Finalize torch perspectives and integrate doors.
-- [x] Multi-perspective torches (front/left/right)
-- [x] Door rendering and passability
-
-### Phase 5: Verification & Launch
-**Status**: 🏃 In Progress
-**Objective**: End-to-end testing of new assets and deployment to https://dungeonsam.site.
+### v0.5 (Goblins & Torches) — ✅
+- New Goblin enemy type with specific AI/stats
+- Shield item integrated into combat/inventory
+- Multi-perspective wall torches (Front, Left, Right)
+- Visual update for doors using new "Door Fit.png" asset
+- Deployed to https://dungeonsam.site
 
 
 ## Completed Milestones
