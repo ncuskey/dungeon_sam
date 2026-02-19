@@ -20,7 +20,7 @@
 **Objective**: Implement the pause system with ESC key support and UI overlay.
 
 ### Phase 3: Interactive Environment
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Implement spacebar-to-open door logic and update collision to block closed doors.
 
 ### Phase 4: Polish & Integration

@@ -2,11 +2,11 @@
 
 ## Current Position
 **Milestone**: v0.6 "Interactive Halls & UX"
-**Phase**: 3 (Interactive Environment)
-**Status**: Planning complete - Ready for execution
+**Phase**: 3 (completed)
+**Status**: Verified ✅
 
 ## Last Session Summary
-Phase 2 executed successfully. Implemented the pause system with ESC key support and a UI overlay.
+Phase 3 executed successfully. Implemented interactive doors that block movement when closed and can be toggled with Spacebar.
 
 ## Next Steps
 1. Plan Milestone v0.6 (e.g., Level 2, Keys/Locks, or Boss Enemy).

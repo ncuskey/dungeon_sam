@@ -49,16 +49,18 @@ export default function LevelRenderer() {
         const doorData: { key: string; position: [number, number, number]; rotation: [number, number, number] }[] = []
         map.forEach((row, y) => {
             row.forEach((cell, x) => {
-                if (cell === 2) {
+                if (cell === 2 || cell === 3) {
                     // Check neighbors to orient door
                     const wallN = y > 0 && map[y - 1][x] === 1
                     const wallS = y < map.length - 1 && map[y + 1][x] === 1
                     const isEwPassage = wallN && wallS
 
+                    const isOpen = cell === 3
+
                     doorData.push({
                         key: `door-${x}-${y}`,
                         position: [x * CELL_SIZE, CELL_SIZE / 2, y * CELL_SIZE],
-                        rotation: [0, isEwPassage ? Math.PI / 2 : 0, 0]
+                        rotation: [0, (isEwPassage ? Math.PI / 2 : 0) + (isOpen ? Math.PI / 2.5 : 0), 0]
                     })
                 }
             })
