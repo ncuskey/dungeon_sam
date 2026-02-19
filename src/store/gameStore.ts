@@ -9,8 +9,8 @@ import { v4 as uuidv4 } from 'uuid'
 
 export const CELL_SIZE = 2 // World units per grid cell
 
-type Direction = 0 | 1 | 2 | 3 // North, East, South, West
-export type GamePhase = 'MENU' | 'PLAYING' | 'WON' | 'GAME_OVER'
+export type Direction = 0 | 1 | 2 | 3 // North, East, South, West
+export type GamePhase = 'MENU' | 'PLAYING' | 'WON' | 'GAME_OVER' | 'PAUSED'
 
 interface GameState {
     phase: GamePhase
@@ -45,6 +45,7 @@ interface GameState {
 
     startGame: () => void
     resetGame: () => void
+    togglePause: () => void
 
     // Platform
     isMobile: boolean
@@ -201,6 +202,12 @@ export const useGameStore = create<GameState>((set, get) => ({
             exploredMap: Array(map.length).fill(null).map(() => Array(map[0].length).fill(false))
         })
         get().revealMap(startPosition.x, startPosition.y)
+    },
+
+    togglePause: () => {
+        const { phase } = get()
+        if (phase === 'PLAYING') set({ phase: 'PAUSED' })
+        else if (phase === 'PAUSED') set({ phase: 'PLAYING' })
     },
 
     moveForward: () => set((state) => {
