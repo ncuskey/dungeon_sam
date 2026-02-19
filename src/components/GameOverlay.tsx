@@ -12,6 +12,7 @@ export default function GameOverlay() {
             initAudioIntegration()
             startGame()
         }
+        if (phase === 'PAUSED') useGameStore.getState().togglePause()
         if (phase === 'WON' || phase === 'GAME_OVER') resetGame()
     }
 
@@ -69,6 +70,13 @@ export default function GameOverlay() {
                 <>
                     <h1 style={{ fontSize: '64px', color: '#00ff00', marginBottom: '20px' }}>DUNGEON CLEARED</h1>
                     <p style={{ fontSize: '24px' }}>PRESS ENTER OR TAP TO PLAY AGAIN</p>
+                </>
+            )}
+
+            {phase === 'PAUSED' && (
+                <>
+                    <h1 style={{ fontSize: '64px', marginBottom: '20px' }}>PAUSED</h1>
+                    <p style={{ fontSize: '24px' }}>PRESS ESC OR TAP TO RESUME</p>
                 </>
             )}
 

@@ -17,6 +17,12 @@ export default function PlayerController() {
             if (now - lastActionTime.current < COOLDOWN_MS) return
 
             let acted = false
+
+            if (e.code === 'Escape') {
+                useGameStore.getState().togglePause()
+                return
+            }
+
             switch (e.code) {
                 case 'ArrowUp':
                 case 'KeyW':
