@@ -3,11 +3,11 @@
 ## Current Position
 **Milestone**: v0.5 "Goblins & Torches"
 **Phase**: 5 (completed)
-**Task**: Polished & Fixed
-**Status**: Milestone v0.5 Deployed & Polished
+**Task**: Polished & Refined
+**Status**: Milestone v0.5 Deployed & Fully Polished
 
 ## Last Session Summary
-Successfully completed and deployed Milestone v0.5 "Goblins & Torches". Resolved visual bugs: fixed door rotation to be parallel to passages and corrected torch left/right perspective swap. All features verified on live site.
+Successfully completed and deployed Milestone v0.5 "Goblins & Torches". Refined torch perspective logic to be view-direction based, ensuring front views show on perpendicular walls and side views show on parallel walls correctly. Verified on live site.
 
 ## Next Steps
 1. Plan Milestone v0.6 (e.g., Level 2, Keys/Locks, or Boss Enemy).

@@ -52,12 +52,13 @@ export default function LevelRenderer() {
                 if (cell === 2) {
                     // Check neighbors to orient door
                     const wallN = y > 0 && map[y - 1][x] === 1
-                    const isHorizontal = wallN // If walls are N/S, door is horizontal across corridor
+                    const wallS = y < map.length - 1 && map[y + 1][x] === 1
+                    const isEwPassage = wallN && wallS
 
                     doorData.push({
                         key: `door-${x}-${y}`,
                         position: [x * CELL_SIZE, CELL_SIZE / 2, y * CELL_SIZE],
-                        rotation: [0, isHorizontal ? Math.PI / 2 : 0, 0]
+                        rotation: [0, isEwPassage ? 0 : Math.PI / 2, 0]
                     })
                 }
             })
@@ -146,23 +147,28 @@ function Torch({ light, textures }: { light: any, textures: { front: THREE.Textu
         const wallVec = facingVectors[light.facing]
         const torchPos = new THREE.Vector3(light.x * CELL_SIZE, CELL_SIZE * 0.7, light.y * CELL_SIZE)
 
-        // Vector from camera to torch
-        const cameraToTorch = new THREE.Vector3().copy(torchPos).sub(camera.position).normalize()
+        // Vector from camera to torch and camera direction
+        const cameraDir = new THREE.Vector3()
+        camera.getWorldDirection(cameraDir)
 
-        // Dot product between camera-to-torch and wall-facing
-        const dot = cameraToTorch.dot(wallVec)
+        // Dot product between camera direction and wall-facing
+        // If they are aligned (facing same way) or anti-aligned (facing opposite), 
+        // the wall is perpendicular to the view direction.
+        const dot = Math.abs(cameraDir.dot(wallVec))
 
-        if (dot > 0.5) {
+        if (dot > 0.7) {
             if (texture !== textures.front) setTexture(textures.front)
         } else {
-            // Determine if it's left or right
-            // Cross product of wall vector and up vector gives "right" side of the wall
-            const wallRight = new THREE.Vector3(0, 1, 0).cross(wallVec)
-            const sideDot = cameraToTorch.dot(wallRight)
+            // Determine if it's left or right of center
+            const cameraRight = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), cameraDir).normalize()
+            const cameraToTorch = new THREE.Vector3().copy(torchPos).sub(camera.position).normalize()
+            const sideDot = cameraToTorch.dot(cameraRight)
 
             if (sideDot > 0) {
+                // To the right of center
                 if (texture !== textures.right) setTexture(textures.right)
             } else {
+                // To the left of center
                 if (texture !== textures.left) setTexture(textures.left)
             }
         }

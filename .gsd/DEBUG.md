@@ -1,40 +1,38 @@
-# Debug Session: Environment Visuals Fix
+# Debug Session: Torch Perspective Rule Change
 
-## Symptoms
+## Symptom
+Torches on walls perpendicular to the player's view direction (walls at the end of a corridor) aren't showing the front view, while torches on parallel walls (side walls) sometimes snap to front view when the player is close.
 
-### 1. Door Orientation
-- **Symptom**: Doors are perpendicular to the passage (blocking it visually or feeling "wrong").
-- **Expected**: Doors should be parallel to the passage walls (fitting "in" the doorway).
-- **Actual**: Doors are rotated 90 degrees offset from the intended parallel state.
+**Expected:** 
+- Walls perpendicular to player's view direction = Front View.
+- Walls parallel to player's view direction = Side View (Left/Right).
 
-### 2. Torch Perspective Swap
-- **Symptom**: Left and right torch textures are reversed.
-- **Expected**: When looking from the left side, the 'left' texture should show (or appropriate perspective).
-- **Actual**: User reports they need to be swapped.
+**Actual:** 
+- Logic currently uses the vector from camera to torch, which is position-dependent rather than view-direction-dependent.
+
+## Resolution
+
+**Root Cause:** 
+Torch perspective logic was based on the position vector (`cameraToTorch`) rather than the view direction. This caused torches to "front" even on side walls when the player was close to their normal.
+
+**Fix:** 
+- Switched to using `camera.getWorldDirection()` to determine wall perpendicularity (threshold `0.7`).
+- Used `cameraRight` cross product to determine if side-wall torches are left or right of center.
+- Aligned logic with the user's rule: "Walls perpendicular to players direction are front view. Walls parallel... are side view... depending on which side of center they're on."
+
+**Verified:** 
+- Live site validation on https://dungeonsam.site.
+- Browser subagent confirmed correct texture flipping and view-based switching.
+- Evidence: `front_torch_verification.png`, `side_wall_torch_verification.png`.
 
 ## Hypotheses
 
 | # | Hypothesis | Likelihood | Status |
 |---|------------|------------|--------|
-| 1 | Door rotation logic in `LevelRenderer.tsx` is inverted/offset. | 90% | TESTING |
-| 2 | Torch `sideDot` logic in `Torch` component has inverted left/right check. | 95% | TESTING |
+| 1 | Switching from `cameraToTorch` to `camera.getWorldDirection()` will align the visuals with the player's intuitive view direction. | 95% | UNTESTED |
+| 2 | The current `dot > 0.85` check is comparing the wrong vectors for a view-direction-based rule. | 80% | UNTESTED |
 
-## Resolution
-
-**Root Cause:** 
-1. Door rotation was set to block corridors (perpendicular), but user requested them to be parallel (aligned with walls/open).
-2. Torch side-switching logic was inverted relative to the camera vector.
-
-**Fix:** 
-- Swapped `isHorizontal ? 0 : Math.PI / 2` to `isHorizontal ? Math.PI / 2 : 0` in `LevelRenderer.tsx`.
-- Swapped `textures.left` and `textures.right` assignments in `Torch` component.
-
-**Verified:** 
-- Live site validation on https://dungeonsam.site.
-- Browser subagent confirmed doors are now edge-on (parallel to passage) and torches show correct perspective.
-- Evidence: `walkthrough.md` updated with new recordings.
-
-
-## Evidence
-- `LevelRenderer.tsx`: Door rotation uses `isHorizontal ? 0 : Math.PI / 2`.
-- `LevelRenderer.tsx`: Torch `sideDot` logic uses `sideDot > 0` for left.
+## Plan
+1. Modify `Torch` component in `LevelRenderer.tsx` to use `camera.getWorldDirection()`.
+2. Update the `dot` product logic to compare player view direction with wall normal.
+3. Adjust the `sideDot` logic to use the player's view direction as well.
