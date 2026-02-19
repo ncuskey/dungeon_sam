@@ -2,11 +2,11 @@
 
 ## Current Position
 **Milestone**: v0.6 "Interactive Halls & UX"
-**Phase**: 2 (Game State Control)
+**Phase**: 3 (Interactive Environment)
 **Status**: Planning complete - Ready for execution
 
 ## Last Session Summary
-Phase 1 executed successfully. Implemented platform-adaptive UI (hiding mobile controls on desktop) and relocated sound controls to the top-left.
+Phase 2 executed successfully. Implemented the pause system with ESC key support and a UI overlay.
 
 ## Next Steps
 1. Plan Milestone v0.6 (e.g., Level 2, Keys/Locks, or Boss Enemy).
