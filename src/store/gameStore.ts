@@ -212,7 +212,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         else if (dir === 2) newY += 1
         else newX -= 1
 
-        if (state.map[newY]?.[newX] === 0) {
+        if (state.map[newY]?.[newX] === 0 || state.map[newY]?.[newX] === 2) {
             // Merged reveal logic with deep copy fix
             const newExplored = [...state.exploredMap]
             for (let ry = newY - 1; ry <= newY + 1; ry++) {
@@ -246,7 +246,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         else if (dir === 2) newY -= 1
         else newX += 1
 
-        if (state.map[newY]?.[newX] === 0) {
+        if (state.map[newY]?.[newX] === 0 || state.map[newY]?.[newX] === 2) {
             // Merged reveal logic with deep copy fix
             const newExplored = [...state.exploredMap]
             for (let ry = newY - 1; ry <= newY + 1; ry++) {

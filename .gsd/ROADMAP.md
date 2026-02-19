@@ -24,8 +24,10 @@
 **Objective**: Implement blocking mechanics using the new shield asset. table and implement its defensive stats/visua effects.
 
 ### Phase 4: Environmental Overhaul
-**Status**: ⬜ Not Started
-**Objective**: Update door rendering and finalize the "directional" logic for wall-mounted torches.
+**Status**: ✅ Complete
+**Goal**: Finalize torch perspectives and integrate doors.
+- [x] Multi-perspective torches (front/left/right)
+- [x] Door rendering and passabilityze the "directional" logic for wall-mounted torches.
 
 ### Phase 5: Verification & Launch
 **Status**: ⬜ Not Started

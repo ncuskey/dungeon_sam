@@ -1,19 +1,20 @@
 import { useRef } from 'react'
 import { useFrame, useLoader } from '@react-three/fiber'
-import { Group, TextureLoader, NearestFilter, DoubleSide } from 'three'
+import { Group, TextureLoader, NearestFilter, DoubleSide, Texture } from 'three'
 
 interface BillboardProps {
     position: [number, number, number]
     color?: string
     scale?: [number, number, number]
     textureUrl?: string
+    texture?: Texture | null
     hp?: number // Optional health bar
     lastHurtTime?: number
 }
 
-export default function Billboard({ position, color = 'red', scale = [1, 1, 1], textureUrl, hp, lastHurtTime }: BillboardProps) {
+export default function Billboard({ position, color = 'red', scale = [1, 1, 1], textureUrl, texture: overrideTexture, hp, lastHurtTime }: BillboardProps) {
     const groupRef = useRef<Group>(null)
-    const texture = textureUrl ? useLoader(TextureLoader, textureUrl) : null
+    const texture = overrideTexture || (textureUrl ? useLoader(TextureLoader, textureUrl) : null)
 
     if (texture) {
         texture.magFilter = NearestFilter

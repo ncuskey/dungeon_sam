@@ -183,6 +183,30 @@ export function generateDungeon() {
 
     paintRooms(root)
 
+    // 4.5. Add Doors at room/corridor junctions
+    // Simple heuristic: Any floor (0) that has exactly 2 wall neighbors (1) 
+    // on opposite sides (N-S or E-W) is a candidate for a door.
+    // We'll place doors with 15% probability to avoid too many doors.
+    for (let y = 1; y < MAP_HEIGHT - 1; y++) {
+        for (let x = 1; x < MAP_WIDTH - 1; x++) {
+            if (map[y][x] === 0) {
+                const wallN = map[y - 1][x] === 1
+                const wallS = map[y + 1][x] === 1
+                const wallE = map[y][x + 1] === 1
+                const wallW = map[y][x - 1] === 1
+
+                // Vertical door (walls on E and W)
+                if (wallE && wallW && !wallN && !wallS) {
+                    if (Math.random() < 0.15) map[y][x] = 2
+                }
+                // Horizontal door (walls on N and S)
+                else if (wallN && wallS && !wallE && !wallW) {
+                    if (Math.random() < 0.15) map[y][x] = 2
+                }
+            }
+        }
+    }
+
     // 5. Find Start and Exit
     const allRooms: Room[] = []
     function collectRooms(leaf: Leaf) {
