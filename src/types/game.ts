@@ -33,4 +33,5 @@ export interface Light {
     intensity: number
     color: string
     distance: number
+    facing?: 'N' | 'S' | 'E' | 'W'
 }

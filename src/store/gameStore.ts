@@ -411,6 +411,11 @@ function generateLights(map: number[][], startPos: { x: number, y: number }): Li
                     const wallNeighbor = neighbors.find(n => map[y + n.dy]?.[x + n.dx] === 1)
 
                     if (wallNeighbor) {
+                        const facing =
+                            wallNeighbor.dy === -1 ? 'N' :
+                                wallNeighbor.dx === 1 ? 'E' :
+                                    wallNeighbor.dy === 1 ? 'S' : 'W' as 'N' | 'S' | 'E' | 'W'
+
                         // Offset the light 0.4 units towards the wall neighbor
                         lights.push({
                             id: uuidv4(),
@@ -418,7 +423,8 @@ function generateLights(map: number[][], startPos: { x: number, y: number }): Li
                             y: y + (wallNeighbor.dy * 0.4),
                             intensity: 2.0,
                             color: '#ff7700', // Deeper orange
-                            distance: 14
+                            distance: 14,
+                            facing
                         })
                     }
                 }
