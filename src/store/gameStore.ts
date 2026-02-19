@@ -46,6 +46,7 @@ interface GameState {
     startGame: () => void
     resetGame: () => void
     togglePause: () => void
+    toggleDoor: () => void
 
     // Platform
     isMobile: boolean
@@ -210,6 +211,29 @@ export const useGameStore = create<GameState>((set, get) => ({
         else if (phase === 'PAUSED') set({ phase: 'PLAYING' })
     },
 
+    toggleDoor: () => set((state) => {
+        if (state.phase !== 'PLAYING') return {}
+
+        const { x, y } = state.playerPosition
+        const dir = state.playerDirection
+        let tx = x, ty = y
+
+        if (dir === 0) ty -= 1
+        else if (dir === 1) tx += 1
+        else if (dir === 2) ty += 1
+        else tx -= 1
+
+        const cell = state.map[ty]?.[tx]
+        if (cell === 2 || cell === 3) {
+            const newMap = state.map.map(row => [...row])
+            newMap[ty][tx] = cell === 2 ? 3 : 2
+
+            // Note: If we had a sound management system, we'd trigger a door sound here
+            return { map: newMap }
+        }
+        return {}
+    }),
+
     moveForward: () => set((state) => {
         if (state.phase !== 'PLAYING') return {}
 
@@ -222,7 +246,8 @@ export const useGameStore = create<GameState>((set, get) => ({
         else if (dir === 2) newY += 1
         else newX -= 1
 
-        if (state.map[newY]?.[newX] === 0 || state.map[newY]?.[newX] === 2) {
+        const targetCell = state.map[newY]?.[newX]
+        if (targetCell === 0 || targetCell === 3) {
             // Merged reveal logic with deep copy fix
             const newExplored = [...state.exploredMap]
             for (let ry = newY - 1; ry <= newY + 1; ry++) {
@@ -256,7 +281,8 @@ export const useGameStore = create<GameState>((set, get) => ({
         else if (dir === 2) newY -= 1
         else newX += 1
 
-        if (state.map[newY]?.[newX] === 0 || state.map[newY]?.[newX] === 2) {
+        const targetCell = state.map[newY]?.[newX]
+        if (targetCell === 0 || targetCell === 3) {
             // Merged reveal logic with deep copy fix
             const newExplored = [...state.exploredMap]
             for (let ry = newY - 1; ry <= newY + 1; ry++) {
