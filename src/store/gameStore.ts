@@ -50,6 +50,7 @@ interface GameState {
 
     // Platform
     isMobile: boolean
+    debugNoEnemies: boolean
 }
 
 const { map: initialMap, startPosition, exitPosition, initialEnemies, initialItems: initialSpawnedItems } = generateDungeon()
@@ -83,6 +84,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     lastAttackTime: 0,
     exploredMap: Array(initialMap.length).fill(null).map(() => Array(initialMap[0].length).fill(false)),
     isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches),
+    debugNoEnemies: false, // Disabled for production
 
     revealMap: (px, py) => set((state) => {
         const yCoord = Math.floor(py)
@@ -367,6 +369,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     tickGame: () => set((state) => {
         if (state.phase !== 'PLAYING') return {}
+        if (state.debugNoEnemies) return { enemies: [], shake: Math.max(0, state.shake - 0.1) }
 
         const occupiedSet = new Set<string>()
         state.enemies.forEach(e => occupiedSet.add(`${e.x},${e.y}`))

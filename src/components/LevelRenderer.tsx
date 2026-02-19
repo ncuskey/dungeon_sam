@@ -71,11 +71,15 @@ export default function LevelRenderer() {
                     let offsetZ = 0
 
                     if (isEwPassage) {
+                        // East-West Passage (walls on North/South)
                         pivotZ -= CELL_SIZE / 2
-                        offsetZ = CELL_SIZE / 2
+                        offsetX = -CELL_SIZE / 2 // Maps to world +Z due to PI/2 rotation
+                        offsetZ = 0
                     } else {
+                        // North-South Passage (walls on West/East)
                         pivotX -= CELL_SIZE / 2
                         offsetX = CELL_SIZE / 2
+                        offsetZ = 0
                     }
 
                     doorData.push({

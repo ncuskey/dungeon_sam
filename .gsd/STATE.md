@@ -1,16 +1,15 @@
 # STATE.md
 
 ## Current Position
-**Milestone**: v0.6 "Interactive Halls & UX"
-**Phase**: 3 (completed)
-**Status**: Verified ✅
+**Milestone**: v0.6 (COMPLETED)
+**Phase**: N/A
+**Status**: Archived ✅
 
 ## Last Session Summary
-Phase 3 executed successfully. Implemented interactive doors that block movement when closed and can be toggled with Spacebar.
+Finalized Milestone v0.6 "Interactive Halls & UX". Completed interactive doors (centered/hinged), pause system, and platform-adaptive UI. Audited and verified on live site.
 
 ## Next Steps
-1. Plan Milestone v0.6 (e.g., Level 2, Keys/Locks, or Boss Enemy).
-2. Deploy final build to production.
+1. Initialize Milestone v0.7 (Planning).
 
 ## Active Blockers
 None

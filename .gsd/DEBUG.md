@@ -22,8 +22,31 @@ Spacebar does not open doors during gameplay.
 
 ## Resolution
 
-**Root Cause:** Redundant action call in `PlayerController.tsx`.
-**Fix:** Remove the duplicate `toggleDoor()` call on line 49.
-**Verified:** Confirmed on live site. Spacebar now toggles door state reliably.
-![Door Opened Verification](/Users/nickcuskey/.gemini/antigravity/brain/6d631f17-d8da-4998-ba8b-bee1e62a76c3/door_opened_verification.png)
-**Regression Check:** Attacking (Space when not facing door) and Pause (ESC) still work correctly.
+**Root Cause:** Doors were rotating around their center mesh point because no pivot offset was defined.
+**Fix:** Introduced a parent `group` at the wall-hinge location and offset the door `mesh` by half its width.
+**Verified:** Confirmed on live site. Doors now swing from the wall at a 90-degree angle.
+![Hinged Door Verification](/Users/nickcuskey/.gemini/antigravity/brain/6d631f17-d8da-4998-ba8b-bee1e62a76c3/door_open_hinge_verification_1771469304793.png)
+**Regression Check:** Collision and interaction logic remain fully functional.
+
+# Debug Session: Door Alignment & Offsets
+
+## Symptom
+The open door is offset from the center of the passage and appears aligned with the wall line instead of swinging clearly within the hallway.
+
+**When:** When a door is open and viewed from the passage.
+**Expected:** The door should be centered in the passage when closed, and swing to a flush position against the wall when open.
+**Actual:** The door is offset parallel to the wall, submerged halfway in some cases, or sticking out incorrectly.
+
+## Hypotheses
+
+| # | Hypothesis | Likelihood | Status |
+|---|------------|------------|--------|
+| 1 | Incorrect local offset axis calculation in `LevelRenderer.tsx` | 95% | UNTESTED |
+| 2 | Rotation pivot coordinate mismatch | 5% | UNTESTED |
+
+## Resolution
+
+**Root Cause:** Axis swap in `LevelRenderer.tsx` and rotation mapping error. `isEwPassage=true` was correctly detecting passages but applying translations to the wrong axis (X instead of Z) and vice versa.
+**Fix:** Refined the coordinate transformation logic to correctly hinge on the wall face (Z offset for EW passages, X offset for NS passages) and use negative local offsets where rotation matrix requires it for centering.
+**Verified:** Empirically verified via browser screenshots showing centered closed doors and flush open doors.
+**Regression Check:** Door interaction and collision remain intact.
