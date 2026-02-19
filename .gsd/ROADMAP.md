@@ -1,19 +1,35 @@
 # ROADMAP.md
 
-> **Current Milestone**: v0.6 "Keys & Gates"
-> **Goal**: Implement progression mechanics with locked doors, keys, and level transitions.
+> **Current Milestone**: v0.6 "Interactive Halls & UX"
+> **Goal**: Enhance game interactivity and user experience with a pause system, interactive doors, and platform-adaptive UI.
 
 ## Must-Haves
-- [ ] Key items for inventory
-- [ ] Locked doors rendering different variant/color
-- [ ] Level transition pads (to Level 2)
-- [ ] Multi-level BSP generation support
+- [ ] Pause menu accessible via ESC key
+- [ ] Relocated sound control (Top-Left)
+- [ ] Interactive doors (Open with Spacebar, block when closed)
+- [ ] Platform-adaptive UI (Hide mobile controls on desktop)
 
 ## Phases
 
-### Phase 1: Planning & Infrastructure
+### Phase 1: Platform & UI Layout
 **Status**: ⬜ Not Started
-**Objective**: Setup multi-level support in `gameStore` and define door-lock logic.
+**Objective**: Implement desktop/mobile detection and relocate sound controls to the top-left.
+
+### Phase 2: Game State Control
+**Status**: ⬜ Not Started
+**Objective**: Implement the pause system with ESC key support and UI overlay.
+
+### Phase 3: Interactive Environment
+**Status**: ⬜ Not Started
+**Objective**: Implement spacebar-to-open door logic and update collision to block closed doors.
+
+### Phase 4: Polish & Integration
+**Status**: ⬜ Not Started
+**Objective**: Finalize UX transitions and ensure audio consistency across pause states.
+
+### Phase 5: Verification & Deployment
+**Status**: ⬜ Not Started
+**Objective**: End-to-end verification across mobile and desktop browsers.
 
 ---
 
