@@ -1,17 +1,22 @@
-# Debug Session: Swap Torch Left/Right Assets
+# Debug Session: Door Orientation Regression
 
 ## Symptom
-The torches on side walls are showing the wrong side texture (pointing away from center or logically inverted).
+Doors are rotated 90 degrees incorrectly again, likely perpendicular to the passage walls when they should be parallel.
 
-**Expected:** Torch on the right side of view should use the asset that points towards the center.
-**Actual:** Currently using `textures.right` for `sideDot > 0`.
+**Expected:** Doors should be parallel to the passage walls.
+**Actual:** Doors are likely perpendicular (blocking the corridor path visually).
 
-## Hypotheses
+## Resolution
 
-| # | Hypothesis | Likelihood | Status |
-|---|------------|------------|--------|
-| 1 | Inverting the assignments in the `sideDot` conditional will resolve the visual mismatch. | 100% | UNTESTED |
+**Root Cause:** 
+The "more robust" neighbor check logic implemented in a previous step inadvertently flipped the rotation assignments for `isEwPassage`, returning the doors to their perpendicular (protruding) state.
 
-## Plan
-1. Swap `textures.left` and `textures.right` in `LevelRenderer.tsx`.
-2. Build and deploy to verify.
+**Fix:** 
+Reverted the assignments in `LevelRenderer.tsx` to `isEwPassage ? Math.PI / 2 : 0`.
+- East-West passage (along X) $\rightarrow$ `Math.PI / 2` (ZY plane) $\rightarrow$ Parallel to X-axis passage.
+- North-South passage (along Z) $\rightarrow$ `0` (XY plane) $\rightarrow$ Parallel to Z-axis passage.
+
+**Verified:** 
+- Live site validation on https://dungeonsam.site.
+- Browser subagent confirmed doors are flush with the walls.
+- Evidence: `door_verification_flush.png`.

@@ -58,7 +58,7 @@ export default function LevelRenderer() {
                     doorData.push({
                         key: `door-${x}-${y}`,
                         position: [x * CELL_SIZE, CELL_SIZE / 2, y * CELL_SIZE],
-                        rotation: [0, isEwPassage ? 0 : Math.PI / 2, 0]
+                        rotation: [0, isEwPassage ? Math.PI / 2 : 0, 0]
                     })
                 }
             })
