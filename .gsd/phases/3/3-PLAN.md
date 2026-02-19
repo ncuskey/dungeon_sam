@@ -1,34 +1,54 @@
 ---
 phase: 3
-plan: 3
-wave: 2
-gap_closure: true
+plan: 1
+wave: 1
 ---
 
-# Plan 3.3: Touch Start Support (Gap Fix)
+# Plan 3.1: Shield & Defense
 
 ## Objective
-Enable starting and restarting the game via touch/click, as the current "Press ENTER" requirement blocks mobile play.
+Implement shield equipment logic and passive damage reduction. Update the HUD to reflect the status of the equipped shield.
 
 ## Context
-- `src/components/GameOverlay.tsx`: Handles Start/Game Over screens. Currently listens only to `keydown`.
+- .gsd/SPEC.md
+- .gsd/ROADMAP.md
+- .gsd/phases/3/RESEARCH.md
+- src/types/game.ts
+- src/store/gameStore.ts
+- src/components/HUD.tsx
 
 ## Tasks
 
 <task type="auto">
-  <name>Add Click Handler to Overlay</name>
-  <files>src/components/GameOverlay.tsx</files>
+  <name>Extend Inventory and Pickup Logic</name>
+  <files>
+    /Users/nickcuskey/Sam's Game/src/types/game.ts
+    /Users/nickcuskey/Sam's Game/src/store/gameStore.ts
+  </files>
   <action>
-    1. Extract the start/reset logic into a helper function `handleInteraction`.
-    2. Add `onClick={handleInteraction}` to the main container `div`.
-       - Because the container covers the full screen (`width: 100%, height: 100%`), tapping anywhere will trigger it.
-    3. Update text prompts to say "PRESS ENTER OR TAP TO START" (and RESTART).
+    - Add `equippedShieldId: string | null` to the `Inventory` interface in `game.ts`.
+    - Update `initialState` in `gameStore.ts` to include `equippedShieldId: null`.
+    - Modify `pickupItem` in `gameStore.ts` to automatically equip the shield if the item type is 'shield'.
   </action>
-  <verify>grep "onClick" src/components/GameOverlay.tsx</verify>
-  <done>Game starts/restarts on click/tap.</done>
+  <verify>Check state transitions when picking up a shield.</verify>
+  <done>Picking up a shield correctly updates the `equippedShieldId` in state.</done>
+</task>
+
+<task type="auto">
+  <name>Implement Damage Reduction and HUD</name>
+  <files>
+    /Users/nickcuskey/Sam's Game/src/store/gameStore.ts
+    /Users/nickcuskey/Sam's Game/src/components/HUD.tsx
+  </files>
+  <action>
+    - Update `tickGame` in `gameStore.ts` to check if a shield is equipped and reduce incoming damage by 50%.
+    - Update `HUD.tsx` to display the name of the equipped shield next to the weapon.
+  </action>
+  <verify>Test damage taken with and without an equipped shield.</verify>
+  <done>Player takes half damage when a shield is equipped, and the HUD displays the shield's name.</done>
 </task>
 
 ## Success Criteria
-- [ ] Tapping the screen starts the game from MENU.
-- [ ] Tapping the screen restarts the game from GAME_OVER or WON.
-- [ ] Text updated to reflect touch option.
+- [ ] Shield can be picked up and is automatically equipped.
+- [ ] Damage from enemies is reduced by 50% when shield is equipped.
+- [ ] HUD displays "SHIELD: [Name]" when a shield is held.
