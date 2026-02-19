@@ -40,7 +40,6 @@ export default function PlayerController() {
                     break
                 case 'Space':
                 case 'KeyF': {
-                    console.log("Keydown: Attack triggered")
                     useGameStore.getState().playerAttack()
                     acted = true
                     break
@@ -58,7 +57,6 @@ export default function PlayerController() {
                     const currentIdx = weapons.findIndex(w => w.id === state.inventory.equippedWeaponId)
                     const nextIdx = (currentIdx + 1) % weapons.length
                     state.equipWeapon(weapons[nextIdx].id)
-                    console.log(`Equipped: ${weapons[nextIdx].name}`)
                     acted = true
                     break
                 }

@@ -135,7 +135,7 @@ export const useGameStore = create<GameState>((set, get) => ({
                     newEquippedShieldId = item.id
                 }
 
-                console.log("Picked up", item.name)
+                soundManager.playPickup()
                 return {
                     items: newItems,
                     inventory: {
@@ -146,7 +146,7 @@ export const useGameStore = create<GameState>((set, get) => ({
                     }
                 }
             } else {
-                console.log("Inventory full")
+                soundManager.playError()
             }
         }
         return {}
@@ -164,7 +164,6 @@ export const useGameStore = create<GameState>((set, get) => ({
                 const newHealth = Math.min(100, state.playerHealth + (item.effectValue || 25))
                 const newInvItems = [...state.inventory.items]
                 newInvItems.splice(itemIndex, 1)
-                console.log("Used potion, health:", newHealth)
                 soundManager.playHeal()
                 return {
                     playerHealth: newHealth,
