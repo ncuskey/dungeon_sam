@@ -109,7 +109,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     }),
 
     items: initialItemsWithShield,
-    inventory: { items: [], maxSize: 5, equippedWeaponId: null },
+    inventory: { items: [], maxSize: 5, equippedWeaponId: null, equippedShieldId: null },
 
     pickupItem: () => set((state) => {
         const { x, y } = state.playerPosition
@@ -124,15 +124,26 @@ export const useGameStore = create<GameState>((set, get) => ({
                 const newInvItems = [...state.inventory.items, { ...item, x: -1, y: -1 }] // Remove pos
 
                 // Auto equip if it's the first weapon
-                let newEquippedId = state.inventory.equippedWeaponId
-                if (item.type === 'weapon' && !newEquippedId) {
-                    newEquippedId = item.id
+                let newEquippedWeaponId = state.inventory.equippedWeaponId
+                if (item.type === 'weapon' && !newEquippedWeaponId) {
+                    newEquippedWeaponId = item.id
+                }
+
+                // Auto equip if it's the first shield
+                let newEquippedShieldId = state.inventory.equippedShieldId
+                if (item.type === 'shield' && !newEquippedShieldId) {
+                    newEquippedShieldId = item.id
                 }
 
                 console.log("Picked up", item.name)
                 return {
                     items: newItems,
-                    inventory: { ...state.inventory, items: newInvItems, equippedWeaponId: newEquippedId }
+                    inventory: {
+                        ...state.inventory,
+                        items: newInvItems,
+                        equippedWeaponId: newEquippedWeaponId,
+                        equippedShieldId: newEquippedShieldId
+                    }
                 }
             } else {
                 console.log("Inventory full")
@@ -180,7 +191,7 @@ export const useGameStore = create<GameState>((set, get) => ({
             exitPosition,
             enemies: initialEnemies,
             items: initialItems,
-            inventory: { items: [], maxSize: 5, equippedWeaponId: null },
+            inventory: { items: [], maxSize: 5, equippedWeaponId: null, equippedShieldId: null },
             playerHealth: 100,
             playerDirection: 1,
             lights: generateLights(map, startPosition),
@@ -350,7 +361,13 @@ export const useGameStore = create<GameState>((set, get) => ({
 
         if (hittingEnemies.length > 0) {
             if (playerHealth > 0 && Math.random() < 0.3) {
-                const damage = hittingEnemies[0].type === 'goblin' ? 8 : 5
+                let damage = hittingEnemies[0].type === 'goblin' ? 8 : 5
+
+                // 50% damage reduction if shield is equipped
+                if (state.inventory.equippedShieldId) {
+                    damage = Math.floor(damage / 2)
+                }
+
                 playerHealth -= damage
                 newShake = 1.0
                 soundManager.playHurt()

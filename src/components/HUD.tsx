@@ -9,6 +9,9 @@ export default function HUD() {
     const equippedWeapon = inventory.items.find(i => i.id === inventory.equippedWeaponId)
     const weaponName = equippedWeapon ? equippedWeapon.name.toUpperCase() : 'FISTS'
 
+    const equippedShield = inventory.items.find(i => i.id === inventory.equippedShieldId)
+    const shieldName = equippedShield ? equippedShield.name.toUpperCase() : 'NONE'
+
     return (
         <div style={{
             position: 'absolute',
@@ -29,8 +32,13 @@ export default function HUD() {
             <div>
                 HEALTH: {health}%
             </div>
-            <div>
-                WEAPON: {weaponName}
+            <div style={{ display: 'flex', gap: '40px' }}>
+                <div>
+                    WEAPON: {weaponName}
+                </div>
+                <div>
+                    SHIELD: {shieldName}
+                </div>
             </div>
             {/* Mute toggle button */}
             <button

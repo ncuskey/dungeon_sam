@@ -20,8 +20,8 @@
 **Objective**: Implement the Goblin enemy type, including movement speed variations and health stats.
 
 ### Phase 3: Shield & Defense
-**Status**: ⬜ Not Started
-**Objective**: Add the Shield item to the loot table and implement its defensive stats/visua effects.
+**Status**: ✅ Complete
+**Objective**: Implement blocking mechanics using the new shield asset. table and implement its defensive stats/visua effects.
 
 ### Phase 4: Environmental Overhaul
 **Status**: ⬜ Not Started

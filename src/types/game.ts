@@ -23,6 +23,7 @@ export interface Inventory {
     items: Item[]
     maxSize: number
     equippedWeaponId: string | null
+    equippedShieldId: string | null
 }
 
 export interface Light {
