@@ -2,9 +2,9 @@
 
 ## Current Position
 **Milestone**: v0.5 "Goblins & Torches"
-**Phase**: 4 (completed)
-**Task**: All tasks complete
-**Status**: Verified
+**Phase**: 5
+**Task**: Planning complete - Ready for execution
+**Status**: Ready for Phase 5 execution
 
 ## Last Session Summary
 Successfully completed v0.4.1 maintenance phase. Fixed persistent lantern tracking issue using manual position synchronization in `useFrame`. All regressions resolved and deployed to production.
