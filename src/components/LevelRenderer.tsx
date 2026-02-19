@@ -57,7 +57,7 @@ export default function LevelRenderer() {
                     doorData.push({
                         key: `door-${x}-${y}`,
                         position: [x * CELL_SIZE, CELL_SIZE / 2, y * CELL_SIZE],
-                        rotation: [0, isHorizontal ? 0 : Math.PI / 2, 0]
+                        rotation: [0, isHorizontal ? Math.PI / 2 : 0, 0]
                     })
                 }
             })
@@ -161,9 +161,9 @@ function Torch({ light, textures }: { light: any, textures: { front: THREE.Textu
             const sideDot = cameraToTorch.dot(wallRight)
 
             if (sideDot > 0) {
-                if (texture !== textures.left) setTexture(textures.left)
-            } else {
                 if (texture !== textures.right) setTexture(textures.right)
+            } else {
+                if (texture !== textures.left) setTexture(textures.left)
             }
         }
     })
