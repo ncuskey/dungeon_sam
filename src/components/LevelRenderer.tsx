@@ -165,11 +165,11 @@ function Torch({ light, textures }: { light: any, textures: { front: THREE.Textu
             const sideDot = cameraToTorch.dot(cameraRight)
 
             if (sideDot > 0) {
-                // To the right of center
-                if (texture !== textures.right) setTexture(textures.right)
-            } else {
-                // To the left of center
+                // To the right of center -> use left asset to point towards center
                 if (texture !== textures.left) setTexture(textures.left)
+            } else {
+                // To the left of center -> use right asset to point towards center
+                if (texture !== textures.right) setTexture(textures.right)
             }
         }
     })

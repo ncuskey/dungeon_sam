@@ -1,38 +1,17 @@
-# Debug Session: Torch Perspective Rule Change
+# Debug Session: Swap Torch Left/Right Assets
 
 ## Symptom
-Torches on walls perpendicular to the player's view direction (walls at the end of a corridor) aren't showing the front view, while torches on parallel walls (side walls) sometimes snap to front view when the player is close.
+The torches on side walls are showing the wrong side texture (pointing away from center or logically inverted).
 
-**Expected:** 
-- Walls perpendicular to player's view direction = Front View.
-- Walls parallel to player's view direction = Side View (Left/Right).
-
-**Actual:** 
-- Logic currently uses the vector from camera to torch, which is position-dependent rather than view-direction-dependent.
-
-## Resolution
-
-**Root Cause:** 
-Torch perspective logic was based on the position vector (`cameraToTorch`) rather than the view direction. This caused torches to "front" even on side walls when the player was close to their normal.
-
-**Fix:** 
-- Switched to using `camera.getWorldDirection()` to determine wall perpendicularity (threshold `0.7`).
-- Used `cameraRight` cross product to determine if side-wall torches are left or right of center.
-- Aligned logic with the user's rule: "Walls perpendicular to players direction are front view. Walls parallel... are side view... depending on which side of center they're on."
-
-**Verified:** 
-- Live site validation on https://dungeonsam.site.
-- Browser subagent confirmed correct texture flipping and view-based switching.
-- Evidence: `front_torch_verification.png`, `side_wall_torch_verification.png`.
+**Expected:** Torch on the right side of view should use the asset that points towards the center.
+**Actual:** Currently using `textures.right` for `sideDot > 0`.
 
 ## Hypotheses
 
 | # | Hypothesis | Likelihood | Status |
 |---|------------|------------|--------|
-| 1 | Switching from `cameraToTorch` to `camera.getWorldDirection()` will align the visuals with the player's intuitive view direction. | 95% | UNTESTED |
-| 2 | The current `dot > 0.85` check is comparing the wrong vectors for a view-direction-based rule. | 80% | UNTESTED |
+| 1 | Inverting the assignments in the `sideDot` conditional will resolve the visual mismatch. | 100% | UNTESTED |
 
 ## Plan
-1. Modify `Torch` component in `LevelRenderer.tsx` to use `camera.getWorldDirection()`.
-2. Update the `dot` product logic to compare player view direction with wall normal.
-3. Adjust the `sideDot` logic to use the player's view direction as well.
+1. Swap `textures.left` and `textures.right` in `LevelRenderer.tsx`.
+2. Build and deploy to verify.
