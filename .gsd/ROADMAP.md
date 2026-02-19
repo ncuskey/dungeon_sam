@@ -6,8 +6,8 @@
 ## Must-Haves
 - [x] New Goblin enemy type with specific AI/stats
 - [x] Shield item integrated into combat/inventory
-- [ ] Multi-perspective wall torches (Front, Left, Right)
-- [ ] Visual update for doors using new "Door Fit.png" asset
+- [x] Multi-perspective wall torches (Front, Left, Right)
+- [x] Visual update for doors using new "Door Fit.png" asset
 
 ## Phases
 
@@ -21,16 +21,16 @@
 
 ### Phase 3: Shield & Defense
 **Status**: ✅ Complete
-**Objective**: Implement blocking mechanics using the new shield asset. table and implement its defensive stats/visua effects.
+**Objective**: Implement blocking mechanics using the new shield asset.
 
 ### Phase 4: Environmental Overhaul
 **Status**: ✅ Complete
 **Goal**: Finalize torch perspectives and integrate doors.
 - [x] Multi-perspective torches (front/left/right)
-- [x] Door rendering and passabilityze the "directional" logic for wall-mounted torches.
+- [x] Door rendering and passability
 
 ### Phase 5: Verification & Launch
-**Status**: ⬜ Not Started
+**Status**: 🏃 In Progress
 **Objective**: End-to-end testing of new assets and deployment to https://dungeonsam.site.
 
 
