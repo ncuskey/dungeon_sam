@@ -4,8 +4,8 @@
 > **Goal**: Expand enemy variety and environmental immersion using new assets.
 
 ## Must-Haves
-- [ ] New Goblin enemy type with specific AI/stats
-- [ ] Shield item integrated into combat/inventory
+- [x] New Goblin enemy type with specific AI/stats
+- [x] Shield item integrated into combat/inventory
 - [ ] Multi-perspective wall torches (Front, Left, Right)
 - [ ] Visual update for doors using new "Door Fit.png" asset
 
