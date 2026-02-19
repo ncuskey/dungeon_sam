@@ -2,8 +2,8 @@
 
 ## Current Position
 **Milestone**: v0.6 "Interactive Halls & UX"
-**Phase**: 1 (Planning)
-**Status**: Milestone planned
+**Phase**: 1 (Platform & UI Layout)
+**Status**: Planning complete - Ready for execution
 
 ## Last Session Summary
 Successfully concluded Milestone v0.5 "Goblins & Torches". Archied phase documentation, generated audit report, and verified all must-haves on the live site. The environment visuals (torches/doors) are now stable and logically sound. 
