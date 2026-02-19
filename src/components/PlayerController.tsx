@@ -46,22 +46,7 @@ export default function PlayerController() {
                     break
                 case 'Space':
                 case 'KeyF': {
-                    useGameStore.getState().toggleDoor()
-                    // toggleDoor returns the new state {map: ...} or {} if nothing toggled
-                    // But our store actions don't return values directly. 
-                    // Let's modify toggleDoor to handle the check or use a helper.
-                    // Actually, I'll just check if there's a door in front.
-
-                    // Simple approach: try to toggle door, if it fails, attack.
-                    // But toggleDoor modifies state. 
-                    // Better: useGameStore.getState().toggleDoor()
-                    // and let's assume if you are facing a door, you want to toggle it.
-
-                    // Let's look at toggleDoor implementation again. 
-                    // It returns the object to set state. 
-                    // In a zustand action implementation, it doesn't return anything to the caller.
-
-                    // I will check for the door presence here to decide whether to attack or toggle.
+                    // Check for door presence to decide whether to attack or toggle.
                     const state = useGameStore.getState()
                     const { x, y } = state.playerPosition
                     const dir = state.playerDirection
