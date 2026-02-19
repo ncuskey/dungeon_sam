@@ -45,6 +45,9 @@ interface GameState {
 
     startGame: () => void
     resetGame: () => void
+
+    // Platform
+    isMobile: boolean
 }
 
 const { map: initialMap, startPosition, exitPosition, initialEnemies, initialItems: initialSpawnedItems } = generateDungeon()
@@ -77,6 +80,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     shake: 0,
     lastAttackTime: 0,
     exploredMap: Array(initialMap.length).fill(null).map(() => Array(initialMap[0].length).fill(false)),
+    isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches),
 
     revealMap: (px, py) => set((state) => {
         const yCoord = Math.floor(py)
