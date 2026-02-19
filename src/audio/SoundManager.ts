@@ -298,6 +298,33 @@ class SoundManager {
         this.playSweep(ctx, 400, 200, 0.15, volume * 0.4, 'sine')
     }
 
+    playError(): void {
+        const ctx = this.ensureContext()
+        const volume = this.getEffectiveVolume('sfx')
+
+        // Harsh dissonant beep
+        const osc1 = ctx.createOscillator()
+        const osc2 = ctx.createOscillator()
+        const gain = ctx.createGain()
+
+        osc1.type = 'square'
+        osc1.frequency.value = 150
+        osc2.type = 'square'
+        osc2.frequency.value = 155 // Slightly detuned for harshness
+
+        gain.gain.setValueAtTime(volume * 0.3, ctx.currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2)
+
+        osc1.connect(gain)
+        osc2.connect(gain)
+        gain.connect(ctx.destination)
+
+        osc1.start()
+        osc2.start()
+        osc1.stop(ctx.currentTime + 0.2)
+        osc2.stop(ctx.currentTime + 0.2)
+    }
+
     playPickup(): void {
         const ctx = this.ensureContext()
         const volume = this.getEffectiveVolume('sfx')
