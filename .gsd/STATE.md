@@ -1,9 +1,9 @@
 # STATE.md
 
 ## Current Position
-**Milestone**: v0.4 "The Lantern & The Blade" - ✅ **COMPLETE**  
-**Phase**: All phases complete  
-**Status**: Milestone archived, ready for next objective
+**Milestone**: v0.5 "Goblins & Torches"
+**Phase**: Not started
+**Status**: Active (resumed 2026-02-18T17:47:53-07:00)
 
 ## Last Session Summary
 Successfully completed v0.4.1 maintenance phase. Fixed persistent lantern tracking issue using manual position synchronization in `useFrame`. All regressions resolved and deployed to production.

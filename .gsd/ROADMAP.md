@@ -1,13 +1,36 @@
 # ROADMAP.md
 
-> **Current Milestone**: [NONE]
-> **Goal**: Awaiting next objective.
+> **Current Milestone**: v0.5 "Goblins & Torches"
+> **Goal**: Expand enemy variety and environmental immersion using new assets.
 
 ## Must-Haves
-- [ ] TBD
+- [ ] New Goblin enemy type with specific AI/stats
+- [ ] Shield item integrated into combat/inventory
+- [ ] Multi-perspective wall torches (Front, Left, Right)
+- [ ] Visual update for doors using new "Door Fit.png" asset
 
 ## Phases
-- [ ] TBD
+
+### Phase 1: Asset Foundation
+**Status**: ⬜ Not Started
+**Objective**: Load all new sprite assets and update `LevelRenderer` to support multi-perspective torches.
+
+### Phase 2: The Goblin Horde
+**Status**: ⬜ Not Started
+**Objective**: Implement the Goblin enemy type, including movement speed variations and health stats.
+
+### Phase 3: Shield & Defense
+**Status**: ⬜ Not Started
+**Objective**: Add the Shield item to the loot table and implement its defensive stats/visua effects.
+
+### Phase 4: Environmental Overhaul
+**Status**: ⬜ Not Started
+**Objective**: Update door rendering and finalize the "directional" logic for wall-mounted torches.
+
+### Phase 5: Verification & Launch
+**Status**: ⬜ Not Started
+**Objective**: End-to-end testing of new assets and deployment to https://dungeonsam.site.
+
 
 ## Completed Milestones
 
