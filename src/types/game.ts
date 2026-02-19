@@ -5,6 +5,7 @@ export interface Enemy {
     type: 'imp' | 'goblin'
     hp: number
     lastHurtTime?: number
+    moveCooldown: number
 }
 
 export type ItemType = 'weapon' | 'potion' | 'key' | 'shield'

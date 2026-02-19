@@ -211,8 +211,8 @@ export function generateDungeon() {
     }
 
     // 6. Spawn Enemies & Items
-    const initialEnemies: { x: number; y: number }[] = []
-    const initialItems: any[] = [] // Using any to avoid importing the type here or we can define it
+    const initialEnemies: any[] = [] // [{id, x, y, type, hp, moveCooldown}]
+    const initialItems: any[] = []
 
     const isOccupied = (x: number, y: number) => {
         if (x === startPos.x && y === startPos.y) return true
@@ -239,7 +239,15 @@ export function generateDungeon() {
         const ex = Math.floor(room.x + room.w / 2)
         const ey = Math.floor(room.y + room.h / 2)
         if (!isOccupied(ex, ey) && Math.random() > 0.5) {
-            initialEnemies.push({ x: ex, y: ey })
+            const type = Math.random() > 0.4 ? 'imp' : 'goblin'
+            initialEnemies.push({
+                id: uuidv4(),
+                x: ex,
+                y: ey,
+                type,
+                hp: type === 'goblin' ? 60 : 100,
+                moveCooldown: type === 'goblin' ? 1 : 2
+            })
         }
 
         // Potions - rarer and capped

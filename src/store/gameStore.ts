@@ -55,7 +55,8 @@ const enemies: Enemy[] = initialEnemies.map((pos, index) => ({
     x: pos.x,
     y: pos.y,
     type: index === 0 ? 'goblin' : 'imp',
-    hp: 100
+    hp: index === 0 ? 60 : 100,
+    moveCooldown: index === 0 ? 1 : 2
 }))
 
 const initialLights = generateLights(initialMap, startPosition)
@@ -179,13 +180,17 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     resetGame: () => {
         const { map, startPosition, exitPosition, initialEnemies, initialItems } = generateDungeon()
-        const newEnemies = initialEnemies.map(pos => ({
-            id: uuidv4(),
-            x: pos.x,
-            y: pos.y,
-            type: 'imp' as const,
-            hp: 100
-        }))
+        const newEnemies = initialEnemies.map(pos => {
+            const type = Math.random() > 0.4 ? 'imp' : 'goblin'
+            return {
+                id: uuidv4(),
+                x: pos.x,
+                y: pos.y,
+                type: type as 'imp' | 'goblin',
+                hp: type === 'goblin' ? 60 : 100,
+                moveCooldown: type === 'goblin' ? 1 : 2
+            }
+        })
 
         set({
             phase: 'PLAYING',
@@ -318,9 +323,19 @@ export const useGameStore = create<GameState>((set, get) => ({
         }
     }),
 
-    spawnEnemy: (x, y) => set((state) => ({
-        enemies: [...state.enemies, { id: uuidv4(), x, y, type: 'imp', hp: 100 }]
-    })),
+    spawnEnemy: (x, y) => set((state) => {
+        const type = Math.random() > 0.4 ? 'imp' : 'goblin'
+        return {
+            enemies: [...state.enemies, {
+                id: uuidv4(),
+                x,
+                y,
+                type: type as 'imp' | 'goblin',
+                hp: type === 'goblin' ? 60 : 100,
+                moveCooldown: type === 'goblin' ? 1 : 2
+            }]
+        }
+    }),
 
     tickGame: () => set((state) => {
         if (state.phase !== 'PLAYING') return {}
@@ -329,26 +344,33 @@ export const useGameStore = create<GameState>((set, get) => ({
         state.enemies.forEach(e => occupiedSet.add(`${e.x},${e.y}`))
 
         const newEnemies = state.enemies.map(enemy => {
-            occupiedSet.delete(`${enemy.x},${enemy.y}`)
-            const newPos = moveEnemy(enemy, state.playerPosition, state.map, occupiedSet)
-            occupiedSet.add(`${newPos.x},${newPos.y}`)
-            return { ...enemy, ...newPos }
+            let newPos = { x: enemy.x, y: enemy.y }
+            let newCooldown = enemy.moveCooldown - 1
+
+            if (newCooldown <= 0) {
+                occupiedSet.delete(`${enemy.x},${enemy.y}`)
+                newPos = moveEnemy(enemy, state.playerPosition, state.map, occupiedSet)
+                occupiedSet.add(`${newPos.x},${newPos.y}`)
+                newCooldown = (enemy.type === 'goblin') ? 1 : 2
+            }
+
+            return { ...enemy, ...newPos, moveCooldown: newCooldown }
         })
 
         let playerHealth = state.playerHealth
         let newShake = Math.max(0, state.shake - 0.1)
 
         // Check for damage based on NEW positions
-        // Allow diagonal hits (Manhattan distance 2 but only if dx and dy are 1)
-        const isNearEnemy = newEnemies.some(e => {
+        const hittingEnemies = newEnemies.filter(e => {
             const dx = Math.abs(e.x - state.playerPosition.x)
             const dy = Math.abs(e.y - state.playerPosition.y)
-            return (dx <= 1 && dy <= 1) && (dx + dy > 0) // Manhattan 1 or diagonal
+            return (dx <= 1 && dy <= 1) && (dx + dy > 0)
         })
 
-        if (isNearEnemy) {
-            if (playerHealth > 0 && Math.random() < 0.3) { // 30% chance
-                playerHealth -= 5
+        if (hittingEnemies.length > 0) {
+            if (playerHealth > 0 && Math.random() < 0.3) {
+                const damage = hittingEnemies[0].type === 'goblin' ? 8 : 5
+                playerHealth -= damage
                 newShake = 1.0
                 soundManager.playHurt()
             }
