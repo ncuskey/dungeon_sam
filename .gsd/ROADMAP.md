@@ -16,7 +16,7 @@
 **Objective**: Load all new sprite assets and update `LevelRenderer` to support multi-perspective torches.
 
 ### Phase 2: The Goblin Horde
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Implement the Goblin enemy type, including movement speed variations and health stats.
 
 ### Phase 3: Shield & Defense
