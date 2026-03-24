@@ -59,17 +59,24 @@ const enemies: Enemy[] = initialEnemies
 
 const initialLights = generateLights(initialMap, startPosition)
 
-const initialItemsWithShield = [
-    ...initialSpawnedItems,
-    {
-        id: uuidv4(),
-        x: startPosition.x,
-        y: startPosition.y,
-        type: 'shield' as const,
-        name: 'Iron Shield',
-        effectValue: 10
+const getStartingInventory = () => {
+    const shieldId = uuidv4()
+    return {
+        items: [{
+            id: shieldId,
+            x: -1,
+            y: -1,
+            type: 'shield' as const,
+            name: 'Iron Shield',
+            effectValue: 10
+        }],
+        maxSize: 5,
+        equippedWeaponId: null as string | null,
+        equippedShieldId: shieldId
     }
-]
+}
+
+const initialInventory = getStartingInventory()
 
 export const useGameStore = create<GameState>((set, get) => ({
     phase: 'MENU',
@@ -116,8 +123,8 @@ export const useGameStore = create<GameState>((set, get) => ({
         return changed ? { exploredMap: newExplored } : {}
     }),
 
-    items: initialItemsWithShield,
-    inventory: { items: [], maxSize: 5, equippedWeaponId: null, equippedShieldId: null },
+    items: initialSpawnedItems,
+    inventory: initialInventory,
 
     pickupItem: () => set((state) => {
         const { x, y } = state.playerPosition
@@ -198,7 +205,7 @@ export const useGameStore = create<GameState>((set, get) => ({
             exitPosition,
             enemies: initialEnemies,
             items: initialItems,
-            inventory: { items: [], maxSize: 5, equippedWeaponId: null, equippedShieldId: null },
+            inventory: getStartingInventory(),
             playerHealth: 100,
             playerDirection: 1,
             lights: generateLights(map, startPosition),
@@ -263,9 +270,44 @@ export const useGameStore = create<GameState>((set, get) => ({
                     }
                 }
             }
+            let newItems = state.items
+            let newInventory = state.inventory
+            
+            const itemIndex = state.items.findIndex(i => i.x === newX && i.y === newY)
+            if (itemIndex > -1) {
+                const item = state.items[itemIndex]
+                if (state.inventory.items.length < state.inventory.maxSize) {
+                    const mappedItems = [...state.items]
+                    mappedItems.splice(itemIndex, 1)
+                    newItems = mappedItems
+
+                    const newInvItems = [...state.inventory.items, { ...item, x: -1, y: -1 }]
+                    
+                    let newEquippedWeaponId = state.inventory.equippedWeaponId
+                    if (item.type === 'weapon' && !newEquippedWeaponId) {
+                        newEquippedWeaponId = item.id
+                    }
+
+                    let newEquippedShieldId = state.inventory.equippedShieldId
+                    if (item.type === 'shield' && !newEquippedShieldId) {
+                        newEquippedShieldId = item.id
+                    }
+
+                    soundManager.playPickup()
+                    newInventory = {
+                        ...state.inventory,
+                        items: newInvItems,
+                        equippedWeaponId: newEquippedWeaponId,
+                        equippedShieldId: newEquippedShieldId
+                    }
+                }
+            }
+
             return {
                 playerPosition: { x: newX, y: newY },
-                exploredMap: newExplored
+                exploredMap: newExplored,
+                items: newItems,
+                inventory: newInventory
             }
         }
         return {}
@@ -298,9 +340,44 @@ export const useGameStore = create<GameState>((set, get) => ({
                     }
                 }
             }
+            let newItems = state.items
+            let newInventory = state.inventory
+            
+            const itemIndex = state.items.findIndex(i => i.x === newX && i.y === newY)
+            if (itemIndex > -1) {
+                const item = state.items[itemIndex]
+                if (state.inventory.items.length < state.inventory.maxSize) {
+                    const mappedItems = [...state.items]
+                    mappedItems.splice(itemIndex, 1)
+                    newItems = mappedItems
+
+                    const newInvItems = [...state.inventory.items, { ...item, x: -1, y: -1 }]
+                    
+                    let newEquippedWeaponId = state.inventory.equippedWeaponId
+                    if (item.type === 'weapon' && !newEquippedWeaponId) {
+                        newEquippedWeaponId = item.id
+                    }
+
+                    let newEquippedShieldId = state.inventory.equippedShieldId
+                    if (item.type === 'shield' && !newEquippedShieldId) {
+                        newEquippedShieldId = item.id
+                    }
+
+                    soundManager.playPickup()
+                    newInventory = {
+                        ...state.inventory,
+                        items: newInvItems,
+                        equippedWeaponId: newEquippedWeaponId,
+                        equippedShieldId: newEquippedShieldId
+                    }
+                }
+            }
+
             return {
                 playerPosition: { x: newX, y: newY },
-                exploredMap: newExplored
+                exploredMap: newExplored,
+                items: newItems,
+                inventory: newInventory
             }
         }
         return {}
