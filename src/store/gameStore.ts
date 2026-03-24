@@ -14,6 +14,7 @@ export type GamePhase = 'MENU' | 'PLAYING' | 'WON' | 'GAME_OVER' | 'PAUSED'
 
 interface GameState {
     phase: GamePhase
+    level: number
     playerPosition: { x: number; y: number }
     playerDirection: Direction
     map: number[][]
@@ -25,6 +26,7 @@ interface GameState {
     moveBackward: () => void
     turnLeft: () => void
     turnRight: () => void
+    nextLevel: () => void
     spawnEnemy: (x: number, y: number) => void
     tickGame: () => void
     playerHealth: number
@@ -80,6 +82,7 @@ const initialInventory = getStartingInventory()
 
 export const useGameStore = create<GameState>((set, get) => ({
     phase: 'MENU',
+    level: 1,
     playerPosition: startPosition,
     playerDirection: 1, // Facing East
     map: initialMap,
@@ -200,6 +203,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
         set({
             phase: 'PLAYING',
+            level: 1,
             map,
             playerPosition: startPosition,
             exitPosition,
@@ -211,6 +215,21 @@ export const useGameStore = create<GameState>((set, get) => ({
             lights: generateLights(map, startPosition),
             exploredMap: Array(map.length).fill(null).map(() => Array(map[0].length).fill(false))
         })
+        get().revealMap(startPosition.x, startPosition.y)
+    },
+
+    nextLevel: () => {
+        const { map, startPosition, exitPosition, initialEnemies, initialItems } = generateDungeon()
+        set((state) => ({
+            level: state.level + 1,
+            map,
+            playerPosition: startPosition,
+            exitPosition,
+            enemies: initialEnemies,
+            items: initialItems,
+            lights: generateLights(map, startPosition),
+            exploredMap: Array(map.length).fill(null).map(() => Array(map[0].length).fill(false))
+        }))
         get().revealMap(startPosition.x, startPosition.y)
     },
 
@@ -237,7 +256,7 @@ export const useGameStore = create<GameState>((set, get) => ({
             const newMap = state.map.map(row => [...row])
             newMap[ty][tx] = cell === 2 ? 3 : 2
 
-            // Note: If we had a sound management system, we'd trigger a door sound here
+            soundManager.playDoorOpen()
             return { map: newMap }
         }
         return {}
@@ -254,6 +273,12 @@ export const useGameStore = create<GameState>((set, get) => ({
         else if (dir === 1) newX += 1
         else if (dir === 2) newY += 1
         else newX -= 1
+
+        if (newX === state.exitPosition.x && newY === state.exitPosition.y) {
+            soundManager.playLevelComplete()
+            get().nextLevel()
+            return {}
+        }
 
         const targetCell = state.map[newY]?.[newX]
         if (targetCell === 0 || targetCell === 3) {
@@ -326,6 +351,12 @@ export const useGameStore = create<GameState>((set, get) => ({
         else if (dir === 1) newX -= 1
         else if (dir === 2) newY -= 1
         else newX += 1
+
+        if (newX === state.exitPosition.x && newY === state.exitPosition.y) {
+            soundManager.playLevelComplete()
+            get().nextLevel()
+            return {}
+        }
 
         const targetCell = state.map[newY]?.[newX]
         if (targetCell === 0 || targetCell === 3) {

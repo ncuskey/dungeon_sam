@@ -373,6 +373,40 @@ class SoundManager {
         })
     }
 
+    playDoorOpen(): void {
+        const ctx = this.ensureContext()
+        const volume = this.getEffectiveVolume('sfx')
+
+        // Heavy stone grinding sound
+        this.playSweep(ctx, 100, 50, 0.4, volume * 0.5, 'square')
+    }
+
+    playLevelComplete(): void {
+        const ctx = this.ensureContext()
+        const volume = this.getEffectiveVolume('sfx')
+
+        // Triumphant ascending arpeggio
+        const freqs = [440, 554.37, 659.25, 880] // A4, C#5, E5, A5
+        freqs.forEach((freq, i) => {
+            const osc = ctx.createOscillator()
+            const gain = ctx.createGain()
+            const startTime = ctx.currentTime + (i * 0.1)
+
+            osc.type = 'square'
+            osc.frequency.value = freq
+
+            gain.gain.setValueAtTime(0, startTime)
+            gain.gain.linearRampToValueAtTime(volume * 0.3, startTime + 0.1)
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.6)
+
+            osc.connect(gain)
+            gain.connect(ctx.destination)
+
+            osc.start(startTime)
+            osc.stop(startTime + 0.7)
+        })
+    }
+
     private playSweep(
         ctx: AudioContext,
         startFreq: number,

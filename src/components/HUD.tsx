@@ -29,8 +29,9 @@ export default function HUD() {
             zIndex: 10,
             boxSizing: 'border-box'
         }}>
-            <div>
-                HEALTH: {health}%
+            <div style={{ display: 'flex', gap: '40px' }}>
+                <div>HEALTH: {health}%</div>
+                <div>LEVEL: {useGameStore(state => state.level)}</div>
             </div>
             <div style={{ display: 'flex', gap: '40px' }}>
                 <div>
