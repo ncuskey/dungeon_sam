@@ -6,10 +6,13 @@
 **Status**: Archived ✅
 
 ## Last Session Summary
-Finalized Milestone v0.6 "Interactive Halls & UX". Completed interactive doors (centered/hinged), pause system, and platform-adaptive UI. Audited and verified on live site.
+Ran /map codebase analysis on 2026-03-24.
+- 12 components identified (LevelRenderer, GameCanvas, CameraRig, EnemyRenderer, ItemRenderer, Billboard, PlayerController, TouchControls, HUD, GameOverlay, WeaponOverlay, Minimap)
+- 7 production dependencies analyzed (React 18, Three.js r160, R3F, Drei, Howler, Zustand v5)
+- 8 technical debt items surfaced (no tests, `any` types, duplicated revealMap logic, global mutable map, etc.)
 
 ## Next Steps
-1. Initialize Milestone v0.7 (Planning).
+1. Initialize Milestone v0.7 with `/plan`.
 
 ## Active Blockers
 None
