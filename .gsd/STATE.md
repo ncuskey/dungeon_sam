@@ -1,13 +1,13 @@
 # STATE.md
 
 ## Current Position
-- **Milestone**: v0.7
-- **Phase**: 4 (completed)
-- **Task**: All tasks complete
-- **Status**: Verified
+- **Milestone**: None
+- **Phase**: None
+- **Task**: Standing by
+- **Status**: Idle
 
 ## Last Session Summary
-Debugged production deploy 404 images error. Root cause: images missing from local workspace. Fix: restored via `git checkout public/` and redeployed.
+Milestone v0.7 successfully delivered, audited, and archived.
 
 ## Next Steps
-1. Proceed to Phase 5 with `/plan 5`
+1. Determine next major focus block with `/new-milestone`

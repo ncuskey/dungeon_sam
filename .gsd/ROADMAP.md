@@ -1,39 +1,23 @@
 # ROADMAP.md
 
-> **Current Milestone**: v0.7 (Mechanics, Monsters & Polish)
-> **Goal**: Implement level completion, new monsters and items, and polish existing mechanics.
+> **Current Milestone**: None
+> **Goal**: TBD
 
 ## Must-Haves
-- [ ] Door image matching, centering fixes, and mobile door opening
-- [ ] Auto-pickup items on walk-over & start-of-game shield
-- [ ] Enemy collision & open door pathing
-- [ ] Torch light emanation fix
-- [ ] Level completion objective
-- [ ] Rubble monster implementation
-- [ ] Loot drops (Watcher specific drops and general drops)
-- [ ] Left Arm (shield) / Right Arm (sword) visual separation
+- [ ] TBD
 
 ## Phases
-
-### Phase 1: Polish & Fixes
-**Status**: ✅ Complete
-**Objective**: Fix door alignments and logic, mobile door interaction, torch lighting, and basic item pickup mechanisms.
-
-### Phase 2: Combat & Visuals
-**Status**: ✅ Complete
-**Objective**: Implement player view (left/right arms) visuals, enemy collision constraints, and pathing through open doors.
-
-### Phase 3: New Monsters & Loot
-**Status**: ✅ Complete
-**Objective**: Add Rubble monster and implement targeted and general loot systems.
-
-### Phase 4: Level Logic & Progression
-**Status**: ✅ Complete
-**Objective**: Plan and implement level completion objectives, multi-level logic, and sound passing.
 
 ---
 
 ## Completed Milestones
+
+### v0.7 (Mechanics, Monsters & Polish) — ✅
+- Added Rubble and Watcher enemies alongside specific loot drop tables
+- Door mechanics normalized, torch emissions corrected, and mobile tap zones resolved
+- Visual shield/sword independent logic overlay
+- Level completion via collision bounding generating sequential floors
+- Deployed to https://dungeonsam.site
 
 ### v0.6 (Interactive Halls & UX) — ✅
 - Pause menu accessible via ESC key
