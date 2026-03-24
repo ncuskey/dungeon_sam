@@ -6,7 +6,9 @@ export default function EnemyRenderer() {
 
     const getEnemyTexture = (type: string) => {
         if (type === 'goblin') return '/goblin.png'
-        return '/The_Watcher.png'
+        if (type === 'rubble') return '/rubble.png'
+        if (type === 'watcher') return '/The_Watcher.png'
+        return '/imp.png'
     }
 
     return (

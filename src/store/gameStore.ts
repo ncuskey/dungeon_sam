@@ -421,29 +421,88 @@ export const useGameStore = create<GameState>((set, get) => ({
 
         if (enemy) {
             const damage = equippedWeapon?.effectValue || 25
+            const newHp = enemy.hp - damage
+            let newItems = state.items
+
+            if (newHp <= 0) {
+                let itemType: 'weapon' | 'shield' | null = null
+                let itemName = ''
+                let itemValue = 0
+
+                if (enemy.type === 'watcher') {
+                    if (Math.random() > 0.5) {
+                        itemType = 'weapon'
+                        itemName = 'Watcher Sword'
+                        itemValue = 50
+                    } else {
+                        itemType = 'shield'
+                        itemName = 'Poison Shield'
+                        itemValue = 30
+                    }
+                } else {
+                    if (Math.random() > 0.5) {
+                        itemType = 'weapon'
+                        itemName = 'Sword of Truth'
+                        itemValue = 25
+                    } else {
+                        itemType = 'shield'
+                        itemName = 'Iron Shield'
+                        itemValue = 10
+                    }
+                }
+
+                if (itemType) {
+                    newItems = [...state.items, {
+                        id: uuidv4(),
+                        x: enemy.x,
+                        y: enemy.y,
+                        type: itemType,
+                        name: itemName,
+                        effectValue: itemValue
+                    }]
+                }
+            }
+
             const newEnemies = state.enemies.map(e => {
                 if (e.id === enemy.id) {
-                    const newHp = e.hp - damage
                     return { ...e, hp: newHp, lastHurtTime: performance.now() }
                 }
                 return e
             }).filter(e => e.hp > 0)
-            return { enemies: newEnemies, shake: 0.5, lastAttackTime: now }
+            return { enemies: newEnemies, items: newItems, shake: 0.5, lastAttackTime: now }
         } else {
             return { shake: 0.1, lastAttackTime: now }
         }
     }),
 
     spawnEnemy: (x, y) => set((state) => {
-        const type = Math.random() > 0.4 ? 'imp' : 'goblin'
+        const r = Math.random()
+        let type: 'imp' | 'goblin' | 'watcher' | 'rubble' = 'imp'
+        let hp = 100
+        let moveCooldown = 2
+
+        if (r > 0.9) {
+            type = 'watcher'
+            hp = 200
+            moveCooldown = 3
+        } else if (r > 0.7) {
+            type = 'rubble'
+            hp = 150
+            moveCooldown = 2
+        } else if (r > 0.4) {
+            type = 'goblin'
+            hp = 60
+            moveCooldown = 1
+        }
+
         return {
             enemies: [...state.enemies, {
                 id: uuidv4(),
                 x,
                 y,
-                type: type as 'imp' | 'goblin',
-                hp: type === 'goblin' ? 60 : 100,
-                moveCooldown: type === 'goblin' ? 1 : 2
+                type,
+                hp,
+                moveCooldown
             }]
         }
     }),

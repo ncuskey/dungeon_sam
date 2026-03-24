@@ -2,7 +2,7 @@ export interface Enemy {
     id: string
     x: number
     y: number
-    type: 'imp' | 'goblin'
+    type: 'imp' | 'goblin' | 'watcher' | 'rubble'
     hp: number
     lastHurtTime?: number
     moveCooldown: number
