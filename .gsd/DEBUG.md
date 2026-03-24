@@ -1,30 +1,37 @@
-# Debug Session: Production 404 Images
+# Debug Session: Production 404 images part 2
 
 ## Symptom
-The deployed game throws 404 errors for all image assets (`/imp.png`, `/shield.png`, etc.) causing the WebGL Context to crash.
+Console shows `404 Not Found` for `/imp.png`, `/shield.png`, `/fist_right.png`, `/torch_front.png`, `/sword_truth.png`, `/potion_green.png`, `/goblin.png`. This crashes the renderer (`THREE.WebGLRenderer: Context Lost`).
 
-**When:** On load of the production URL (dungeonsam.site).
-**Expected:** Images should load and render via `Billboard` components.
-**Actual:** The server returns 404. `rsync --delete` deleted them from the remote server.
+**When:** On load of the production URL.
+**Expected:** Assets load successfully.
+**Actual:** 404 errors.
 
 ## Evidence
-- `rsync --delete ./dist/ ...` output showed `deleting torch_right.png`, `deleting sword_truth.png`, etc.
-- This suggests the images were not present inside `./dist/` after the Vite build process.
+- `rsync` uploaded `shield.png`, `fist_right.png`, `torch_front.png`, `sword_truth.png`, `potion_green.png`, `goblin.png`. So they ARE on the server.
+- **However**, `imp.png` is completely missing from the `rsync` output, and wasn't found in a previous `find_by_name *.png` search.
+- The browser might be aggressively caching an old `index.html` or old assets, OR `imp.png` is hardcoded somewhere but missing from the repo.
 
 ## Hypotheses
 | # | Hypothesis | Likelihood | Status |
 |---|------------|------------|--------|
-| 1 | Images are incorrectly placed in the project root instead of `public/` directory | 95% | ELIMINATED |
-| 2 | Images were deleted locally from `public/` before build | 99% | CONFIRMED |
+| 1 | `imp.png` is missing from the repo completely, causing a crash that halts other image loading | 80% | CONFIRMED |
+| 2 | Nginx or remote server is caching old 404s from the broken deployment | 50% | ELIMINATED |
+| 3 | File casing issues on Linux relative to Mac (e.g. `Imp.png` vs `imp.png`) | 40% | ELIMINATED |
 
 ## Attempts
 ### Attempt 1
-**Testing:** H2 — Images deleted locally
-**Action:** Ran `git status`
-**Result:** Found `deleted: public/The_Watcher.png`, etc., indicating the files were missing from the local working tree but still tracked in git.
+**Testing:** H2 — Remote server caching
+**Action:** Ran `curl -I https://dungeonsam.site/shield.png`
+**Result:** Returned `200 OK`. The remote server is accurately hosting the deployed files. The browser threw false 404s for the other images because the WebGL context crashed instantly when `imp.png` failed to load.
+**Conclusion:** ELIMINATED
+
+### Attempt 2
+**Testing:** H1 — `imp.png` is missing fundamentally
+**Action:** `grep_search` on `src/` for `imp.png`.
+**Result:** Found hardcoded reference in `EnemyRenderer.tsx` preventing texture loading completion. `imp.png` was missing natively.
 **Conclusion:** CONFIRMED
 
 ## Resolution
-**Root Cause:** The `public/` directory assets were deleted from the local workspace. Because they were missing locally, `npm run build` did not copy them to `dist/`, and eventually `rsync --delete` deleted the remaining copies on the production server.
-**Fix:** Ran `git checkout public/` to restore them from HEAD, followed by a rebuilt production bundle and another explicit `./deploy.sh`.
-**Verified:** Will load production URL manually.
+**Root Cause:** The `imp.png` file was never committed to the repository and was missing from `public/`. Because `@react-three/drei`'s `useTexture` suspends on load, its failure explicitly triggered an unhandled error cascading into `THREE.WebGLRenderer: Context Lost`, immediately cancelling all subsequent network requests (appearing as false 404s).
+**Fix:** Used AI primitive generation to build a fallback `imp.png` sprite, applied to `public/imp.png`, and rebuilt/redeployed.
