@@ -16,7 +16,7 @@
 ## Phases
 
 ### Phase 1: Polish & Fixes
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Fix door alignments and logic, mobile door interaction, torch lighting, and basic item pickup mechanisms.
 
 ### Phase 2: Combat & Visuals
