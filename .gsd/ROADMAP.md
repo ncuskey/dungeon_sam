@@ -20,7 +20,7 @@
 **Objective**: Fix door alignments and logic, mobile door interaction, torch lighting, and basic item pickup mechanisms.
 
 ### Phase 2: Combat & Visuals
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Implement player view (left/right arms) visuals, enemy collision constraints, and pathing through open doors.
 
 ### Phase 3: New Monsters & Loot
