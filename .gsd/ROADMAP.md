@@ -28,7 +28,7 @@
 **Objective**: Add Rubble monster and implement targeted and general loot systems.
 
 ### Phase 4: Level Logic & Progression
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Plan and implement level completion objectives, multi-level logic, and sound passing.
 
 ---
