@@ -24,7 +24,7 @@
 **Objective**: Implement player view (left/right arms) visuals, enemy collision constraints, and pathing through open doors.
 
 ### Phase 3: New Monsters & Loot
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Add Rubble monster and implement targeted and general loot systems.
 
 ### Phase 4: Level Logic & Progression
