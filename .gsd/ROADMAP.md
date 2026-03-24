@@ -1,16 +1,35 @@
 # ROADMAP.md
 
-> **Current Milestone**: v0.7 (Planning)
-> **Goal**: TBD
+> **Current Milestone**: v0.7 (Mechanics, Monsters & Polish)
+> **Goal**: Implement level completion, new monsters and items, and polish existing mechanics.
 
 ## Must-Haves
-- [ ] TBD
+- [ ] Door image matching, centering fixes, and mobile door opening
+- [ ] Auto-pickup items on walk-over & start-of-game shield
+- [ ] Enemy collision & open door pathing
+- [ ] Torch light emanation fix
+- [ ] Level completion objective
+- [ ] Rubble monster implementation
+- [ ] Loot drops (Watcher specific drops and general drops)
+- [ ] Left Arm (shield) / Right Arm (sword) visual separation
 
 ## Phases
 
-### Phase 1: Planning
+### Phase 1: Polish & Fixes
 **Status**: ⬜ Not Started
-**Objective**: Define requirements for v0.7.
+**Objective**: Fix door alignments and logic, mobile door interaction, torch lighting, and basic item pickup mechanisms.
+
+### Phase 2: Combat & Visuals
+**Status**: ⬜ Not Started
+**Objective**: Implement player view (left/right arms) visuals, enemy collision constraints, and pathing through open doors.
+
+### Phase 3: New Monsters & Loot
+**Status**: ⬜ Not Started
+**Objective**: Add Rubble monster and implement targeted and general loot systems.
+
+### Phase 4: Level Logic & Progression
+**Status**: ⬜ Not Started
+**Objective**: Plan and implement level completion objectives, multi-level logic, and sound passing.
 
 ---
 

@@ -1,9 +1,10 @@
 # STATE.md
 
 ## Current Position
-**Milestone**: v0.6 (COMPLETED)
-**Phase**: N/A
-**Status**: Archived ✅
+- **Milestone**: v0.7
+- **Phase**: 1
+- **Task**: Planning complete
+- **Status**: Ready for execution
 
 ## Last Session Summary
 Ran /map codebase analysis on 2026-03-24.
@@ -12,12 +13,4 @@ Ran /map codebase analysis on 2026-03-24.
 - 8 technical debt items surfaced (no tests, `any` types, duplicated revealMap logic, global mutable map, etc.)
 
 ## Next Steps
-1. Initialize Milestone v0.7 with `/plan`.
-
-## Active Blockers
-None
-
-## Recent Decisions
-- Lantern tracking: Use manual `position.copy()` instead of `camera.add()` to avoid R3F scene graph conflicts
-- State updates: Merge related changes (movement + reveal) into atomic `set()` calls
-- Animation state: Use `useRef` for timeout management to prevent stuck states
+1. `/execute 1`
