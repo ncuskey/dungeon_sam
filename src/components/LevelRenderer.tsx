@@ -45,6 +45,25 @@ export default function LevelRenderer() {
     doorTexture.magFilter = THREE.NearestFilter
     doorTexture.minFilter = THREE.NearestFilter
 
+    const doorMaterials = useMemo(() => {
+        const doorTextureFlipped = doorTexture.clone()
+        doorTextureFlipped.wrapS = THREE.RepeatWrapping
+        doorTextureFlipped.repeat.x = -1
+        
+        const front = new THREE.MeshStandardMaterial({ map: doorTexture, transparent: true, alphaTest: 0.5, side: THREE.FrontSide })
+        const back = new THREE.MeshStandardMaterial({ map: doorTextureFlipped, transparent: true, alphaTest: 0.5, side: THREE.FrontSide })
+        const edge = new THREE.MeshStandardMaterial({ color: 0x333333 })
+        
+        return [
+            edge, // right
+            edge, // left
+            edge, // top
+            edge, // bottom
+            front, // front
+            back  // back
+        ]
+    }, [doorTexture])
+
     const doors = useMemo(() => {
         const doorData: {
             key: string;
@@ -58,7 +77,20 @@ export default function LevelRenderer() {
                     // Check neighbors to orient door
                     const wallN = y > 0 && map[y - 1][x] === 1
                     const wallS = y < map.length - 1 && map[y + 1][x] === 1
-                    const isEwPassage = wallN && wallS
+                    const wallW = x > 0 && map[y][x - 1] === 1
+                    const wallE = x < row.length - 1 && map[y][x + 1] === 1
+                    
+                    let isEwPassage = false
+                    if ((wallN || wallS) && !wallW && !wallE) {
+                        isEwPassage = true
+                    } else if ((wallW || wallE) && !wallN && !wallS) {
+                        isEwPassage = false
+                    } else {
+                        // Fallback: which axis has more walls bounding it
+                        const sumNS = (wallN ? 1 : 0) + (wallS ? 1 : 0)
+                        const sumEW = (wallW ? 1 : 0) + (wallE ? 1 : 0)
+                        isEwPassage = sumNS > sumEW
+                    }
 
                     const isOpen = cell === 3
                     const baseRotation = isEwPassage ? Math.PI / 2 : 0
@@ -140,9 +172,8 @@ export default function LevelRenderer() {
             {/* Doors */}
             {doors.map((door) => (
                 <group key={door.key} position={door.pivotPosition} rotation={door.rotation}>
-                    <mesh position={door.meshPosition}>
+                    <mesh position={door.meshPosition} material={doorMaterials}>
                         <boxGeometry args={[CELL_SIZE, CELL_SIZE, 0.1]} />
-                        <meshStandardMaterial map={doorTexture} transparent alphaTest={0.5} />
                     </mesh>
                 </group>
             ))}
@@ -207,6 +238,7 @@ function Torch({ light, textures }: { light: any, textures: { front: THREE.Textu
     return (
         <group position={[light.x * CELL_SIZE, CELL_SIZE * 0.7, light.y * CELL_SIZE]}>
             <pointLight
+                position={[0, 0.3, 0]}
                 intensity={light.intensity}
                 color={light.color}
                 distance={light.distance}

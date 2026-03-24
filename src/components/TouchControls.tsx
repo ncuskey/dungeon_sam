@@ -136,11 +136,25 @@ export default function TouchControls() {
                     }}
                 >🧪</div>
 
-                {/* INTERACT (Simulate E) */}
                 <div
                     onPointerDown={(e) => {
                         e.preventDefault()
-                        pickupItem()
+                        
+                        const state = useGameStore.getState()
+                        const { x, y } = state.playerPosition
+                        const dir = state.playerDirection
+                        let tx = x, ty = y
+                        if (dir === 0) ty -= 1
+                        else if (dir === 1) tx += 1
+                        else if (dir === 2) ty += 1
+                        else tx -= 1
+
+                        const cell = state.map[ty]?.[tx]
+                        if (cell === 2 || cell === 3) {
+                            state.toggleDoor()
+                        } else {
+                            pickupItem()
+                        }
                     }}
                     style={{
                         ...btnStyle,
