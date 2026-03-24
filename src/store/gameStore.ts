@@ -257,6 +257,8 @@ export const useGameStore = create<GameState>((set, get) => ({
 
         const targetCell = state.map[newY]?.[newX]
         if (targetCell === 0 || targetCell === 3) {
+            const enemyInWay = state.enemies.find(e => e.x === newX && e.y === newY && e.hp > 0)
+            if (enemyInWay) return {}
             // Merged reveal logic with deep copy fix
             const newExplored = [...state.exploredMap]
             for (let ry = newY - 1; ry <= newY + 1; ry++) {
@@ -327,6 +329,8 @@ export const useGameStore = create<GameState>((set, get) => ({
 
         const targetCell = state.map[newY]?.[newX]
         if (targetCell === 0 || targetCell === 3) {
+            const enemyInWay = state.enemies.find(e => e.x === newX && e.y === newY && e.hp > 0)
+            if (enemyInWay) return {}
             // Merged reveal logic with deep copy fix
             const newExplored = [...state.exploredMap]
             for (let ry = newY - 1; ry <= newY + 1; ry++) {

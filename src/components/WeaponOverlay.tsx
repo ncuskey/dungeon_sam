@@ -3,6 +3,7 @@ import { useGameStore } from '../store/gameStore'
 
 export default function WeaponOverlay() {
     const equippedWeaponId = useGameStore(state => state.inventory.equippedWeaponId)
+    const equippedShieldId = useGameStore(state => state.inventory.equippedShieldId)
     const items = useGameStore(state => state.inventory.items)
     const [isAttacking, setIsAttacking] = useState(false)
 
@@ -29,6 +30,7 @@ export default function WeaponOverlay() {
     }, [lastAttackTime])
 
     const weapon = items.find(i => i.id === equippedWeaponId)
+    const shield = items.find(i => i.id === equippedShieldId)
 
     return (
         <div style={{
@@ -57,39 +59,30 @@ export default function WeaponOverlay() {
                 justifyContent: 'center',
                 alignItems: 'flex-end'
             }}>
-                {weapon ? (
+                <div style={{ display: 'flex', gap: '50px' }}>
                     <img
-                        src="/sword_truth.png"
-                        alt="Sword"
+                        src={shield ? "/shield.png" : "/fist_left.png"}
+                        alt={shield ? "Shield" : "Left Fist"}
                         style={{
-                            width: '400px',
-                            imageRendering: 'pixelated'
+                            width: '300px',
+                            objectFit: 'contain',
+                            imageRendering: 'pixelated',
+                            transition: 'transform 0.1s',
+                            transform: isAttacking ? 'translateY(-20px)' : 'none'
                         }}
                     />
-                ) : (
-                    <div style={{ display: 'flex', gap: '50px' }}>
-                        <img
-                            src="/fist_left.png"
-                            alt="Left Fist"
-                            style={{
-                                width: '300px',
-                                imageRendering: 'pixelated',
-                                transition: 'transform 0.1s',
-                                transform: isAttacking ? 'translateY(-20px)' : 'none'
-                            }}
-                        />
-                        <img
-                            src="/fist_right.png"
-                            alt="Right Fist"
-                            style={{
-                                width: '300px',
-                                imageRendering: 'pixelated',
-                                transition: 'transform 0.1s',
-                                transform: isAttacking ? 'translateY(-50px) translateX(-20px)' : 'none'
-                            }}
-                        />
-                    </div>
-                )}
+                    <img
+                        src={weapon ? "/sword_truth.png" : "/fist_right.png"}
+                        alt={weapon ? "Weapon" : "Right Fist"}
+                        style={{
+                            width: '300px',
+                            objectFit: 'contain',
+                            imageRendering: 'pixelated',
+                            transition: 'transform 0.1s',
+                            transform: isAttacking ? 'translateY(-50px) translateX(-20px)' : 'none'
+                        }}
+                    />
+                </div>
             </div>
         </div>
     )

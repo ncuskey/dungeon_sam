@@ -45,7 +45,8 @@ export function moveEnemy(
         if (cand.x === playerPos.x && cand.y === playerPos.y) continue
 
         // 2. Is it walkable?
-        if (map[cand.y]?.[cand.x] !== 0) continue
+        const cell = map[cand.y]?.[cand.x]
+        if (cell !== 0 && cell !== 3) continue
 
         // 3. Is it occupied by another enemy?
         if (occupiedPositions.has(`${cand.x},${cand.y}`)) continue
