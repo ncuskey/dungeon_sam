@@ -14,7 +14,7 @@
 **Objective**: Register new weapon sprites, define their stats, and add them to the loot tables.
 
 ### Phase 2: Monster Integration
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Register new monster sprites, define their stats/AI, and add them to the map generator spawn logic.
 
 ### Phase 3: Balancing and Polish
