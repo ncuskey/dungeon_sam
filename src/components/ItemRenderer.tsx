@@ -6,7 +6,10 @@ export default function ItemRenderer() {
 
     const getItemTexture = (itemType: string, itemName?: string) => {
         if (itemType === 'potion') return '/potion_green.png' // Default to green
+        if (itemName?.includes('Watcher Sword')) return '/Watcher Sword.png'
         if (itemName?.includes('Sword')) return '/sword_truth.png'
+        if (itemName?.includes('Club')) return '/club.png'
+        if (itemName?.includes('Bow')) return '/Bow and Arrow.png'
         if (itemName?.includes('Shield')) {
             if (itemName.includes('Poison')) return '/poison_shield.png'
             return '/shield.png'

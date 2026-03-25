@@ -244,7 +244,6 @@ export function generateDungeon() {
         return false
     }
 
-    // Place 1 Sword of Truth in a random room (not the first one)
     if (allRooms.length > 1) {
         const swordRoomIdx = Math.floor(Math.random() * (allRooms.length - 1)) + 1
         const swordRoom = allRooms[swordRoomIdx]
@@ -254,7 +253,20 @@ export function generateDungeon() {
             y: Math.floor(swordRoom.y + swordRoom.h / 2),
             type: 'weapon',
             name: 'Sword of Truth',
-            effectValue: 50
+            effectValue: 25
+        })
+
+        const shieldRoomIdx = Math.floor(Math.random() * (allRooms.length - 1)) + 1
+        const shieldRoom = allRooms[shieldRoomIdx]
+        
+        // Offset the shield slightly so it doesn't spawn exactly on top of the sword if they share a room
+        initialItems.push({
+            id: uuidv4(),
+            x: Math.floor(shieldRoom.x + shieldRoom.w / 3),
+            y: Math.floor(shieldRoom.y + shieldRoom.h / 3),
+            type: 'shield',
+            name: 'Iron Shield',
+            effectValue: 10
         })
     }
 

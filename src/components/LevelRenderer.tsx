@@ -1,5 +1,5 @@
 import { useGameStore, CELL_SIZE } from '../store/gameStore'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import { createTextures } from '../utils/textureGenerator'
 import * as THREE from 'three'
 import Billboard from './Billboard'
@@ -54,14 +54,10 @@ export default function LevelRenderer() {
         const back = new THREE.MeshStandardMaterial({ map: doorTextureFlipped, transparent: true, alphaTest: 0.5, side: THREE.FrontSide })
         const edge = new THREE.MeshStandardMaterial({ color: 0x333333 })
         
-        return [
-            edge, // right
-            edge, // left
-            edge, // top
-            edge, // bottom
-            front, // front
-            back  // back
-        ]
+        const leftHinge = [edge, edge, edge, edge, front, back]
+        const rightHinge = [edge, edge, edge, edge, back, front]
+        
+        return { leftHinge, rightHinge }
     }, [doorTexture])
 
     const doors = useMemo(() => {
@@ -69,7 +65,8 @@ export default function LevelRenderer() {
             key: string;
             pivotPosition: [number, number, number];
             meshPosition: [number, number, number];
-            rotation: [number, number, number]
+            rotation: [number, number, number];
+            isLeftHinge: boolean;
         }[] = []
         map.forEach((row, y) => {
             row.forEach((cell, x) => {
@@ -93,32 +90,95 @@ export default function LevelRenderer() {
                     }
 
                     const isOpen = cell === 3
-                    const baseRotation = isEwPassage ? Math.PI / 2 : 0
-                    const swingRotation = isOpen ? -Math.PI / 2 : 0
 
-                    // Pivot is at the corner of the cell
+                    // Determine where to put the hinge based on adjacent solid corners
                     let pivotX = x * CELL_SIZE
                     let pivotZ = y * CELL_SIZE
                     let offsetX = 0
                     let offsetZ = 0
+                    let baseRotation = 0
+                    let swingRotation = 0
+
+                    // Check corners to see where corridor walls continue
+                    const nw = map[y - 1]?.[x - 1] === 1
+                    const ne = map[y - 1]?.[x + 1] === 1
+                    const sw = map[y + 1]?.[x - 1] === 1
+                    const se = map[y + 1]?.[x + 1] === 1
 
                     if (isEwPassage) {
-                        // East-West Passage (walls on North/South)
-                        pivotZ -= CELL_SIZE / 2
-                        offsetX = -CELL_SIZE / 2 // Maps to world +Z due to PI/2 rotation
-                        offsetZ = 0
+                        // East-West Passage (walls on North/South, open East/West)
+                        if (nw) {
+                            // Hinge North, Swing West
+                            pivotZ -= CELL_SIZE / 2
+                            offsetX = -CELL_SIZE / 2
+                            baseRotation = Math.PI / 2
+                            swingRotation = isOpen ? -Math.PI / 2 : 0
+                        } else if (ne) {
+                            // Hinge North, Swing East
+                            pivotZ -= CELL_SIZE / 2
+                            offsetX = CELL_SIZE / 2
+                            baseRotation = -Math.PI / 2
+                            swingRotation = isOpen ? Math.PI / 2 : 0
+                        } else if (sw) {
+                            // Hinge South, Swing West
+                            pivotZ += CELL_SIZE / 2
+                            offsetX = -CELL_SIZE / 2
+                            baseRotation = -Math.PI / 2
+                            swingRotation = isOpen ? Math.PI / 2 : 0
+                        } else if (se) {
+                            // Hinge South, Swing East
+                            pivotZ += CELL_SIZE / 2
+                            offsetX = CELL_SIZE / 2
+                            baseRotation = Math.PI / 2
+                            swingRotation = isOpen ? -Math.PI / 2 : 0
+                        } else {
+                            // Fallback (Hinge North, Swing West)
+                            pivotZ -= CELL_SIZE / 2
+                            offsetX = -CELL_SIZE / 2
+                            baseRotation = Math.PI / 2
+                            swingRotation = isOpen ? -Math.PI / 2 : 0
+                        }
                     } else {
-                        // North-South Passage (walls on West/East)
-                        pivotX -= CELL_SIZE / 2
-                        offsetX = CELL_SIZE / 2
-                        offsetZ = 0
+                        // North-South Passage (walls on West/East, open North/South)
+                        if (nw) {
+                            // Hinge West, Swing North
+                            pivotX -= CELL_SIZE / 2
+                            offsetX = CELL_SIZE / 2
+                            baseRotation = 0
+                            swingRotation = isOpen ? Math.PI / 2 : 0
+                        } else if (ne) {
+                            // Hinge East, Swing North
+                            pivotX += CELL_SIZE / 2
+                            offsetX = -CELL_SIZE / 2
+                            baseRotation = 0
+                            swingRotation = isOpen ? -Math.PI / 2 : 0
+                        } else if (sw) {
+                            // Hinge West, Swing South
+                            pivotX -= CELL_SIZE / 2
+                            offsetX = CELL_SIZE / 2
+                            baseRotation = 0
+                            swingRotation = isOpen ? -Math.PI / 2 : 0
+                        } else if (se) {
+                            // Hinge East, Swing South
+                            pivotX += CELL_SIZE / 2
+                            offsetX = -CELL_SIZE / 2
+                            baseRotation = 0
+                            swingRotation = isOpen ? Math.PI / 2 : 0
+                        } else {
+                            // Fallback (Hinge West, Swing South)
+                            pivotX -= CELL_SIZE / 2
+                            offsetX = CELL_SIZE / 2
+                            baseRotation = 0
+                            swingRotation = isOpen ? -Math.PI / 2 : 0
+                        }
                     }
 
                     doorData.push({
                         key: `door-${x}-${y}`,
                         pivotPosition: [pivotX, CELL_SIZE / 2, pivotZ],
                         meshPosition: [offsetX, 0, offsetZ],
-                        rotation: [0, baseRotation + swingRotation, 0]
+                        rotation: [0, baseRotation + swingRotation, 0],
+                        isLeftHinge: offsetX > 0
                     })
                 }
             })
@@ -171,11 +231,7 @@ export default function LevelRenderer() {
 
             {/* Doors */}
             {doors.map((door) => (
-                <group key={door.key} position={door.pivotPosition} rotation={door.rotation}>
-                    <mesh position={door.meshPosition} material={doorMaterials}>
-                        <boxGeometry args={[CELL_SIZE, CELL_SIZE, 0.1]} />
-                    </mesh>
-                </group>
+                <Door key={door.key} door={door} materials={doorMaterials} />
             ))}
 
             {/* Dynamic Lights & Torch Visuals */}
@@ -186,6 +242,31 @@ export default function LevelRenderer() {
                     textures={{ front: torchFront, left: torchLeft, right: torchRight }}
                 />
             ))}
+        </group>
+    )
+}
+
+function Door({ door, materials }: { door: any, materials: any }) {
+    const groupRef = useRef<THREE.Group>(null)
+
+    // Set initial rotation instantly on mount to avoid swinging from 0
+    useEffect(() => {
+        if (groupRef.current) {
+            groupRef.current.rotation.y = door.rotation[1]
+        }
+    }, []) // Run once on mount
+
+    useFrame((_, delta) => {
+        if (!groupRef.current) return
+        const targetY = door.rotation[1]
+        groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetY, delta * 8)
+    })
+
+    return (
+        <group ref={groupRef} position={door.pivotPosition}>
+            <mesh position={door.meshPosition} material={door.isLeftHinge ? materials.leftHinge : materials.rightHinge}>
+                <boxGeometry args={[CELL_SIZE, CELL_SIZE, 0.1]} />
+            </mesh>
         </group>
     )
 }
@@ -206,7 +287,6 @@ function Torch({ light, textures }: { light: any, textures: { front: THREE.Textu
         }
 
         const wallVec = facingVectors[light.facing]
-        const torchPos = new THREE.Vector3(light.x * CELL_SIZE, CELL_SIZE * 0.7, light.y * CELL_SIZE)
 
         // Vector from camera to torch and camera direction
         const cameraDir = new THREE.Vector3()
@@ -220,17 +300,19 @@ function Torch({ light, textures }: { light: any, textures: { front: THREE.Textu
         if (dot > 0.7) {
             if (texture !== textures.front) setTexture(textures.front)
         } else {
-            // Determine if it's left or right of center
-            const cameraRight = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), cameraDir).normalize()
-            const cameraToTorch = new THREE.Vector3().copy(torchPos).sub(camera.position).normalize()
-            const sideDot = cameraToTorch.dot(cameraRight)
+            // Calculate the camera's true "Right" vector
+            const cameraRight = new THREE.Vector3().crossVectors(cameraDir, new THREE.Vector3(0, 1, 0)).normalize()
+            
+            // Project the direction TO the wall onto the camera's Right vector.
+            // If the wall is to the visual right, sideDot > 0.
+            const sideDot = wallVec.dot(cameraRight)
 
             if (sideDot > 0) {
-                // To the right of center -> use left asset to point towards center
-                if (texture !== textures.left) setTexture(textures.left)
-            } else {
-                // To the left of center -> use right asset to point towards center
+                // Wall is visually on the right -> use 'right' texture (bracket on right)
                 if (texture !== textures.right) setTexture(textures.right)
+            } else {
+                // Wall is visually on the left -> use 'left' texture (bracket on left)
+                if (texture !== textures.left) setTexture(textures.left)
             }
         }
     })

@@ -43,7 +43,10 @@ export default function HUD() {
             </div>
             {/* Mute toggle button */}
             <button
-                onClick={toggleMute}
+                onClick={(e) => {
+                    toggleMute()
+                    e.currentTarget.blur()
+                }}
                 style={{
                     position: 'fixed',
                     top: '20px',

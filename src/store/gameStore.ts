@@ -62,19 +62,11 @@ const enemies: Enemy[] = initialEnemies
 const initialLights = generateLights(initialMap, startPosition)
 
 const getStartingInventory = () => {
-    const shieldId = uuidv4()
     return {
-        items: [{
-            id: shieldId,
-            x: -1,
-            y: -1,
-            type: 'shield' as const,
-            name: 'Iron Shield',
-            effectValue: 10
-        }],
+        items: [],
         maxSize: 5,
         equippedWeaponId: null as string | null,
-        equippedShieldId: shieldId
+        equippedShieldId: null as string | null
     }
 }
 
@@ -94,7 +86,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     lastAttackTime: 0,
     exploredMap: Array(initialMap.length).fill(null).map(() => Array(initialMap[0].length).fill(false)),
     isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches),
-    debugNoEnemies: false, // Disabled for production
+    debugNoEnemies: false, // Disabled for testing
 
     revealMap: (px, py) => set((state) => {
         const yCoord = Math.floor(py)
@@ -446,7 +438,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
         const enemy = state.enemies.find(e => e.x === targetX && e.y === targetY)
         const equippedWeapon = state.inventory.items.find(i => i.id === state.inventory.equippedWeaponId)
-        const weaponType = (equippedWeapon?.name === 'Sword of Truth') ? 'sword' : 'fist'
+        const weaponType = equippedWeapon ? 'sword' : 'fist'
 
         playAttackSound(!!enemy, weaponType)
 
@@ -456,7 +448,7 @@ export const useGameStore = create<GameState>((set, get) => ({
             let newItems = state.items
 
             if (newHp <= 0) {
-                let itemType: 'weapon' | 'shield' | null = null
+                let itemType: 'weapon' | 'shield' | 'potion' | null = null
                 let itemName = ''
                 let itemValue = 0
 
@@ -471,14 +463,41 @@ export const useGameStore = create<GameState>((set, get) => ({
                         itemValue = 30
                     }
                 } else {
-                    if (Math.random() > 0.5) {
+                    const dropRoll = Math.random()
+                    if (dropRoll < 0.25) {
+                        itemType = 'weapon'
+                        itemName = 'Goblin Club'
+                        itemValue = 15
+                    } else if (dropRoll < 0.5) {
                         itemType = 'weapon'
                         itemName = 'Sword of Truth'
                         itemValue = 25
+                    } else if (dropRoll < 0.75) {
+                        itemType = 'weapon'
+                        itemName = 'Bow and Arrow'
+                        itemValue = 20
                     } else {
                         itemType = 'shield'
                         itemName = 'Iron Shield'
                         itemValue = 10
+                    }
+                }
+
+                // Check if unique item already exists in world or inventory
+                const itemAlreadyExists = (name: string) => {
+                    const inWorld = state.items.some(i => i.name === name)
+                    const inInventory = state.inventory.items.some(i => i.name === name)
+                    return inWorld || inInventory
+                }
+
+                if (itemType && itemAlreadyExists(itemName)) {
+                    // Fallback to dropping a potion with a low chance, or nothing
+                    if (Math.random() > 0.7) {
+                        itemType = 'potion'
+                        itemName = 'Health Potion'
+                        itemValue = 50
+                    } else {
+                        itemType = null // Drop nothing
                     }
                 }
 

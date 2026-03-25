@@ -39,8 +39,8 @@ export default function Minimap() {
         ctx.fillStyle = '#00ff00'
         ctx.save()
         ctx.translate(playerPosition.x * CELL_SIZE + CELL_SIZE / 2, playerPosition.y * CELL_SIZE + CELL_SIZE / 2)
-        // Rotation: 0=N, 1=E, 2=S, 3=W
-        ctx.rotate(playerDirection * (Math.PI / 2) - Math.PI / 2)
+        // Rotation: 0=N (Up), 1=E (Right), 2=S (Down), 3=W (Left)
+        ctx.rotate(playerDirection * (Math.PI / 2))
 
         ctx.beginPath()
         ctx.moveTo(0, -3)

@@ -32,6 +32,20 @@ export default function WeaponOverlay() {
     const weapon = items.find(i => i.id === equippedWeaponId)
     const shield = items.find(i => i.id === equippedShieldId)
 
+    const getWeaponTexture = (wName?: string) => {
+        if (!wName) return "/fist_right.png"
+        if (wName.includes('Club')) return '/club.png'
+        if (wName.includes('Watcher Sword')) return '/Watcher Sword.png'
+        if (wName.includes('Bow')) return '/Bow and Arrow.png'
+        return '/sword_truth.png'
+    }
+
+    const getShieldTexture = (sName?: string) => {
+        if (!sName) return "/fist_left.png"
+        if (sName.includes('Poison')) return '/poison_shield.png'
+        return '/shield.png'
+    }
+
     return (
         <div style={{
             position: 'absolute',
@@ -61,7 +75,7 @@ export default function WeaponOverlay() {
             }}>
                 <div style={{ display: 'flex', gap: '50px' }}>
                     <img
-                        src={shield ? "/shield.png" : "/fist_left.png"}
+                        src={getShieldTexture(shield?.name)}
                         alt={shield ? "Shield" : "Left Fist"}
                         style={{
                             width: '300px',
@@ -72,7 +86,7 @@ export default function WeaponOverlay() {
                         }}
                     />
                     <img
-                        src={weapon ? "/sword_truth.png" : "/fist_right.png"}
+                        src={getWeaponTexture(weapon?.name)}
                         alt={weapon ? "Weapon" : "Right Fist"}
                         style={{
                             width: '300px',
