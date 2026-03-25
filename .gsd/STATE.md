@@ -1,23 +1,13 @@
 # STATE.md
 
 ## Current Position
-- **Milestone**: v0.8
-- **Phase**: 4 (completed)
-- **Task**: All tasks complete
-- **Status**: Verified
+- **Milestone**: None (v0.8 completed)
+- **Phase**: None
+- **Task**: Idle
+- **Status**: Ready
 
 ## Last Session Summary
-Phase 4 (Gap Closure) executed successfully. 2 plans, 2 tasks completed.
-Added Vite code-splitting and consolidated texture bindings.
+Milestone v0.8 completed successfully. Missing assets integrated, game balanced progressively, and tech debt addressed via code-splitting and centralized mappings.
 
 ## Next Steps
-1. /complete-milestone — Archive and finalize work
-Resolved several visual and interaction bugs:
-- Animated door hinges to smoothly swing 90 degrees flush to the wall.
-- Fixed torch billboard orientation to correctly map textures to their structural wall.
-- Corrected Minimap player arrow rotation geometry offset.
-- Removed HTML focus trap from the Mute button to fix spacebar attack toggling.
-- Added a new 'Goblin Club' weapon drop with dynamic UI rendering.
-
-## Next Steps
-1. Determine next major focus block with `/new-milestone` or assess any remaining mechanics tweaks.
+1. /new-milestone — Start next milestone

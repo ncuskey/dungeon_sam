@@ -1,39 +1,24 @@
 # ROADMAP.md
 
-> **Current Milestone**: v0.8
-> **Goal**: Integrate all unused weapon and monster assets into the game
+> **Current Milestone**: Unplanned
+> **Goal**: TBD
 
 ## Must-Haves
-- [ ] Integrate unused weapons (Bow and Arrow, Watcher Sword, club, poison_shield, sword_truth)
-- [ ] Integrate unused monsters (The_Watcher, imp)
+- [ ] TBD
 
 ## Phases
 
-### Phase 1: Weapon Integration
-**Status**: ✅ Complete
-**Objective**: Register new weapon sprites, define their stats, and add them to the loot tables.
-
-### Phase 2: Monster Integration
-**Status**: ✅ Complete
-**Objective**: Register new monster sprites, define their stats/AI, and add them to the map generator spawn logic.
-
-### Phase 3: Balancing and Polish
-**Status**: ✅ Complete
-**Objective**: Ensure the new items and enemies spawn at appropriate depths and the game remains balanced.
-
----
-
-### Phase 4: Gap Closure
-**Status**: ✅ Complete
-**Objective**: Address gaps from milestone audit
-
-**Gaps to Close:**
-- [ ] Add vite configuration for code-splitting (`chunk size > 500kB` warning)
-- [ ] Consolidate item/weapon texture mapping to reduce duplication
+*(Use /plan to add phases for the next milestone)*
 
 ---
 
 ## Completed Milestones
+
+### v0.8 (Assets & Balancing) — ✅
+- Integrated unused weapons (Bow and Arrow, Watcher Sword)
+- Integrated unused monsters (The_Watcher, imp)
+- Adjusted map generation for progressive item and enemy scaling
+- Configured Vite chunking and refactored texture mapping constants
 
 ### v0.7 (Mechanics, Monsters & Polish) — ✅
 - Added Rubble and Watcher enemies alongside specific loot drop tables
