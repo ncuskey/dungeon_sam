@@ -1,17 +1,10 @@
 # STATE.md
 
-## Current Position
-- **Milestone**: v0.8
-- **Phase**: 3 (completed)
-- **Task**: All tasks complete
-- **Status**: Verified
-
-## Last Session Summary
-Phase 3 executed successfully. 1 plan, 2 tasks completed.
-Integrated progressive level scaling for items and enemies.
+## Gap Closure Mode
+Addressing 2 gaps from milestone audit.
 
 ## Next Steps
-1. /complete-milestone — Archive and finalize work
+1. /execute 4 --gaps-only — Execute gap closure plans
 Resolved several visual and interaction bugs:
 - Animated door hinges to smoothly swing 90 degrees flush to the wall.
 - Fixed torch billboard orientation to correctly map textures to their structural wall.

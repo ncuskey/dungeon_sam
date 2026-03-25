@@ -23,6 +23,16 @@
 
 ---
 
+### Phase 4: Gap Closure
+**Status**: ⬜ Not Started
+**Objective**: Address gaps from milestone audit
+
+**Gaps to Close:**
+- [ ] Add vite configuration for code-splitting (`chunk size > 500kB` warning)
+- [ ] Consolidate item/weapon texture mapping to reduce duplication
+
+---
+
 ## Completed Milestones
 
 ### v0.7 (Mechanics, Monsters & Polish) — ✅
