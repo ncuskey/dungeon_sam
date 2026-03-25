@@ -2,12 +2,16 @@
 
 ## Current Position
 - **Milestone**: v0.8
-- **Phase**: 1
-- **Task**: Planning complete
-- **Status**: Ready for execution
+- **Phase**: 1 (completed)
+- **Task**: All tasks complete
+- **Status**: Verified
+
+## Last Session Summary
+Phase 1 executed successfully. 1 plan, 2 tasks completed.
+Integrated Bow and Arrow and Watcher Sword.
 
 ## Next Steps
-1. /execute 1
+1. /plan 2 — Create Phase 2 execution plans
 Resolved several visual and interaction bugs:
 - Animated door hinges to smoothly swing 90 degrees flush to the wall.
 - Fixed torch billboard orientation to correctly map textures to their structural wall.

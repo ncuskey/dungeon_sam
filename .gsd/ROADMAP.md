@@ -10,7 +10,7 @@
 ## Phases
 
 ### Phase 1: Weapon Integration
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Register new weapon sprites, define their stats, and add them to the loot tables.
 
 ### Phase 2: Monster Integration
