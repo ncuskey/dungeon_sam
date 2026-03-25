@@ -1,10 +1,17 @@
 # STATE.md
 
-## Gap Closure Mode
-Addressing 2 gaps from milestone audit.
+## Current Position
+- **Milestone**: v0.8
+- **Phase**: 4 (completed)
+- **Task**: All tasks complete
+- **Status**: Verified
+
+## Last Session Summary
+Phase 4 (Gap Closure) executed successfully. 2 plans, 2 tasks completed.
+Added Vite code-splitting and consolidated texture bindings.
 
 ## Next Steps
-1. /execute 4 --gaps-only — Execute gap closure plans
+1. /complete-milestone — Archive and finalize work
 Resolved several visual and interaction bugs:
 - Animated door hinges to smoothly swing 90 degrees flush to the wall.
 - Fixed torch billboard orientation to correctly map textures to their structural wall.
