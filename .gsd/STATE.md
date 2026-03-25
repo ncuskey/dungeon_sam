@@ -2,16 +2,16 @@
 
 ## Current Position
 - **Milestone**: v0.8
-- **Phase**: 2 (completed)
-- **Task**: All tasks complete
-- **Status**: Verified
+- **Phase**: 3
+- **Task**: Planning complete
+- **Status**: Ready for execution
 
 ## Last Session Summary
 Phase 2 executed successfully. 1 plan, 1 task completed.
 Integrated missing monsters into map generation.
 
 ## Next Steps
-1. /plan 3 — Create Phase 3 execution plans
+1. /execute 3
 Resolved several visual and interaction bugs:
 - Animated door hinges to smoothly swing 90 degrees flush to the wall.
 - Fixed torch billboard orientation to correctly map textures to their structural wall.
