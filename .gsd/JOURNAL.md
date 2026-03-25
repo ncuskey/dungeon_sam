@@ -67,3 +67,36 @@ Milestone v0.2 complete and deployed. Resuming for Milestone v0.3 (Lighting).
 - Considering **Level 2** with different floor/wall textures using the established `textureGenerator` patterns.
 
 *GSD Methodology applied successfully. Context remained stable across all 5 phases.*
+
+---
+
+## Session: 2026-03-25 16:03
+
+### Objective
+Integrate remaining unused assets and resolve deployment technical debt.
+
+### Accomplished
+- **Milestone v0.8**:
+  - Integrated `Watcher Sword`, `Bow and Arrow`, `The_Watcher`, and `imp`.
+  - Implemented depth-based scaling for items and enemies in `dungeonGenerator.ts`.
+- **Gap Closure**:
+  - Configured Vite code-splitting to resolve chunk size warnings.
+  - Centralized asset mappings in `src/utils/constants.ts`.
+- **Deployment Rescue**:
+  - Fixed 403 Forbidden by restoring `index.html`.
+  - Fixed 404s by normalizing all assets to lowercase (Linux filesystem safety).
+  - Restored the correct **Skull** Poison Shield after a mis-restoration.
+
+### Verification
+- [x] All new assets rendered correctly in-game.
+- [x] No 404 or 403 errors on production server.
+- [x] WebGL context stable across level transitions.
+
+### Paused Because
+Milestone v0.8 and all gap closures are successfully completed and verified live.
+
+### Handoff Notes
+- **Assets**: All `.png` files in `public/` are now lowercase. Use lowercase in code.
+- **Build**: `npm run build` is required before deployment to update the chunk-split bundle.
+- **Skull Shield**: The 61K version is the intended master asset.
+
