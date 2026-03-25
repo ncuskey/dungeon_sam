@@ -275,14 +275,32 @@ export function generateDungeon() {
         const ex = Math.floor(room.x + room.w / 2)
         const ey = Math.floor(room.y + room.h / 2)
         if (!isOccupied(ex, ey) && Math.random() > 0.5) {
-            const type = Math.random() > 0.4 ? 'imp' : 'goblin'
+            const r = Math.random()
+            let type: 'imp' | 'goblin' | 'watcher' | 'rubble' = 'imp'
+            let hp = 100
+            let moveCooldown = 2
+
+            if (r > 0.85) {
+                type = 'watcher'
+                hp = 200
+                moveCooldown = 3
+            } else if (r > 0.70) {
+                type = 'rubble'
+                hp = 150
+                moveCooldown = 2
+            } else if (r > 0.40) {
+                type = 'goblin'
+                hp = 60
+                moveCooldown = 1
+            }
+
             initialEnemies.push({
                 id: uuidv4(),
                 x: ex,
                 y: ey,
                 type,
-                hp: type === 'goblin' ? 60 : 100,
-                moveCooldown: type === 'goblin' ? 1 : 2
+                hp,
+                moveCooldown
             })
         }
 
