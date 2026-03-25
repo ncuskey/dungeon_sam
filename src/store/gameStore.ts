@@ -211,7 +211,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     },
 
     nextLevel: () => {
-        const { map, startPosition, exitPosition, initialEnemies, initialItems } = generateDungeon()
+        const { map, startPosition, exitPosition, initialEnemies, initialItems } = generateDungeon(get().level + 1)
         set((state) => ({
             level: state.level + 1,
             map,

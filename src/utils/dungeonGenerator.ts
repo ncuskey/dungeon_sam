@@ -131,7 +131,7 @@ function createCorridor(roomA: Room, roomB: Room) {
 
 import { v4 as uuidv4 } from 'uuid'
 
-export function generateDungeon() {
+export function generateDungeon(level: number = 1) {
     // 1. Initialize empty map (1 = wall)
     map = []
     for (let y = 0; y < MAP_HEIGHT; y++) {
@@ -245,6 +245,26 @@ export function generateDungeon() {
     }
 
     if (allRooms.length > 1) {
+        let swordName = 'Goblin Club'
+        let swordValue = 15
+        if (level >= 4) {
+            swordName = 'Watcher Sword'
+            swordValue = 50
+        } else if (level === 3) {
+            swordName = 'Bow and Arrow'
+            swordValue = 20
+        } else if (level === 2) {
+            swordName = 'Sword of Truth'
+            swordValue = 25
+        }
+
+        let shieldName = 'Iron Shield'
+        let shieldValue = 10
+        if (level >= 3) {
+            shieldName = 'Poison Shield'
+            shieldValue = 30
+        }
+
         const swordRoomIdx = Math.floor(Math.random() * (allRooms.length - 1)) + 1
         const swordRoom = allRooms[swordRoomIdx]
         initialItems.push({
@@ -252,8 +272,8 @@ export function generateDungeon() {
             x: Math.floor(swordRoom.x + swordRoom.w / 2),
             y: Math.floor(swordRoom.y + swordRoom.h / 2),
             type: 'weapon',
-            name: 'Sword of Truth',
-            effectValue: 25
+            name: swordName,
+            effectValue: swordValue
         })
 
         const shieldRoomIdx = Math.floor(Math.random() * (allRooms.length - 1)) + 1
@@ -265,8 +285,8 @@ export function generateDungeon() {
             x: Math.floor(shieldRoom.x + shieldRoom.w / 3),
             y: Math.floor(shieldRoom.y + shieldRoom.h / 3),
             type: 'shield',
-            name: 'Iron Shield',
-            effectValue: 10
+            name: shieldName,
+            effectValue: shieldValue
         })
     }
 
@@ -280,18 +300,27 @@ export function generateDungeon() {
             let hp = 100
             let moveCooldown = 2
 
-            if (r > 0.85) {
+            // Base probabilities: Watcher 15%, Rubble 15%, Goblin 30%, Imp 40%
+            const watcherChance = Math.min(0.40, 0.15 + (level - 1) * 0.05)
+            const rubbleChance = Math.min(0.30, 0.15 + (level - 1) * 0.03)
+            const goblinChance = Math.max(0.15, 0.30 - (level - 1) * 0.04)
+
+            if (r < watcherChance) {
                 type = 'watcher'
-                hp = 200
+                hp = 200 + (level - 1) * 20
                 moveCooldown = 3
-            } else if (r > 0.70) {
+            } else if (r < watcherChance + rubbleChance) {
                 type = 'rubble'
-                hp = 150
+                hp = 150 + (level - 1) * 15
                 moveCooldown = 2
-            } else if (r > 0.40) {
+            } else if (r < watcherChance + rubbleChance + goblinChance) {
                 type = 'goblin'
-                hp = 60
+                hp = 60 + (level - 1) * 10
                 moveCooldown = 1
+            } else {
+                type = 'imp'
+                hp = 100 + (level - 1) * 10
+                moveCooldown = 2
             }
 
             initialEnemies.push({
