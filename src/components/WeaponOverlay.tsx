@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { useGameStore } from '../store/gameStore'
+import { WEAPON_TEXTURES, SHIELD_TEXTURES } from '../utils/constants'
 
 export default function WeaponOverlay() {
     const equippedWeaponId = useGameStore(state => state.inventory.equippedWeaponId)
@@ -34,16 +35,12 @@ export default function WeaponOverlay() {
 
     const getWeaponTexture = (wName?: string) => {
         if (!wName) return "/fist_right.png"
-        if (wName.includes('Club')) return '/club.png'
-        if (wName.includes('Watcher Sword')) return '/Watcher Sword.png'
-        if (wName.includes('Bow')) return '/Bow and Arrow.png'
-        return '/sword_truth.png'
+        return WEAPON_TEXTURES[wName] || '/sword_truth.png'
     }
 
     const getShieldTexture = (sName?: string) => {
         if (!sName) return "/fist_left.png"
-        if (sName.includes('Poison')) return '/poison_shield.png'
-        return '/shield.png'
+        return SHIELD_TEXTURES[sName] || '/shield.png'
     }
 
     return (

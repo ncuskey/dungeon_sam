@@ -1,19 +1,14 @@
 import { useGameStore, CELL_SIZE } from '../store/gameStore'
 import Billboard from './Billboard'
+import { WEAPON_TEXTURES, SHIELD_TEXTURES } from '../utils/constants'
 
 export default function ItemRenderer() {
     const items = useGameStore((state) => state.items)
 
     const getItemTexture = (itemType: string, itemName?: string) => {
         if (itemType === 'potion') return '/potion_green.png' // Default to green
-        if (itemName?.includes('Watcher Sword')) return '/Watcher Sword.png'
-        if (itemName?.includes('Sword')) return '/sword_truth.png'
-        if (itemName?.includes('Club')) return '/club.png'
-        if (itemName?.includes('Bow')) return '/Bow and Arrow.png'
-        if (itemName?.includes('Shield')) {
-            if (itemName.includes('Poison')) return '/poison_shield.png'
-            return '/shield.png'
-        }
+        if (itemType === 'weapon' && itemName) return WEAPON_TEXTURES[itemName] || '/sword_truth.png'
+        if (itemType === 'shield' && itemName) return SHIELD_TEXTURES[itemName] || '/shield.png'
         return undefined
     }
 
