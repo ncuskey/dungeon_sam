@@ -1,12 +1,25 @@
 # ROADMAP.md
 
-> **Current Milestone**: None
-> **Goal**: TBD
+> **Current Milestone**: v0.8
+> **Goal**: Integrate all unused weapon and monster assets into the game
 
 ## Must-Haves
-- [ ] TBD
+- [ ] Integrate unused weapons (Bow and Arrow, Watcher Sword, club, poison_shield, sword_truth)
+- [ ] Integrate unused monsters (The_Watcher, imp)
 
 ## Phases
+
+### Phase 1: Weapon Integration
+**Status**: ⬜ Not Started
+**Objective**: Register new weapon sprites, define their stats, and add them to the loot tables.
+
+### Phase 2: Monster Integration
+**Status**: ⬜ Not Started
+**Objective**: Register new monster sprites, define their stats/AI, and add them to the map generator spawn logic.
+
+### Phase 3: Balancing and Polish
+**Status**: ⬜ Not Started
+**Objective**: Ensure the new items and enemies spawn at appropriate depths and the game remains balanced.
 
 ---
 
