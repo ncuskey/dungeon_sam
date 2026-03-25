@@ -2,11 +2,12 @@
 
 ## Current Position
 - **Milestone**: v0.8
-- **Phase**: Not started
-- **Task**: Standing by
-- **Status**: Milestone planned
+- **Phase**: 1
+- **Task**: Planning complete
+- **Status**: Ready for execution
 
-## Last Session Summary
+## Next Steps
+1. /execute 1
 Resolved several visual and interaction bugs:
 - Animated door hinges to smoothly swing 90 degrees flush to the wall.
 - Fixed torch billboard orientation to correctly map textures to their structural wall.
