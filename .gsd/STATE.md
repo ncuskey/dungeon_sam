@@ -2,16 +2,16 @@
 
 ## Current Position
 - **Milestone**: v0.8
-- **Phase**: 3
-- **Task**: Planning complete
-- **Status**: Ready for execution
+- **Phase**: 3 (completed)
+- **Task**: All tasks complete
+- **Status**: Verified
 
 ## Last Session Summary
-Phase 2 executed successfully. 1 plan, 1 task completed.
-Integrated missing monsters into map generation.
+Phase 3 executed successfully. 1 plan, 2 tasks completed.
+Integrated progressive level scaling for items and enemies.
 
 ## Next Steps
-1. /execute 3
+1. /complete-milestone — Archive and finalize work
 Resolved several visual and interaction bugs:
 - Animated door hinges to smoothly swing 90 degrees flush to the wall.
 - Fixed torch billboard orientation to correctly map textures to their structural wall.

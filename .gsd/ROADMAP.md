@@ -18,7 +18,7 @@
 **Objective**: Register new monster sprites, define their stats/AI, and add them to the map generator spawn logic.
 
 ### Phase 3: Balancing and Polish
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Ensure the new items and enemies spawn at appropriate depths and the game remains balanced.
 
 ---
