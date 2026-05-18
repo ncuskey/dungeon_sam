@@ -54,7 +54,7 @@ export default function GameOverlay() {
                     <div style={{ marginTop: '40px', textAlign: 'center', opacity: 0.7 }}>
                         <p>WASD / ARROW KEYS to Move</p>
                         <p>SPACE / F to Attack</p>
-                        <p>E to Pick Up • Q to Switch Weapon</p>
+                        <p>E to Interact - Q to Switch Weapon</p>
                     </div>
                 </>
             )}

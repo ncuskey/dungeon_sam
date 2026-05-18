@@ -1,3 +1,7 @@
+import type { Enemy, Interactable, Item, PuzzleLocks, QuestArtifact } from '../types/game'
+import { makeId } from './id'
+import { ECHO_SIGIL_ARTIFACT_ID } from './story'
+
 export const MAP_WIDTH = 30
 export const MAP_HEIGHT = 30
 export const MIN_LEAF_SIZE = 6
@@ -129,8 +133,6 @@ function createCorridor(roomA: Room, roomB: Room) {
     }
 }
 
-import { v4 as uuidv4 } from 'uuid'
-
 export function generateDungeon(level: number = 1) {
     // 1. Initialize empty map (1 = wall)
     map = []
@@ -234,14 +236,83 @@ export function generateDungeon(level: number = 1) {
         }
     }
 
-    // 6. Spawn Enemies & Items
-    const initialEnemies: any[] = [] // [{id, x, y, type, hp, moveCooldown}]
-    const initialItems: any[] = []
+    // 6. Spawn Enemies, Items & Story Objects
+    const initialEnemies: Enemy[] = []
+    const initialItems: Item[] = []
+    const initialArtifacts: QuestArtifact[] = []
+    const initialInteractables: Interactable[] = []
+    const puzzleLocks: PuzzleLocks = {
+        exitSeal: {
+            id: 'exitSeal',
+            x: exitPos.x,
+            y: exitPos.y,
+            requiredArtifactId: ECHO_SIGIL_ARTIFACT_ID,
+            unlocked: level !== 1 || allRooms.length <= 1
+        }
+    }
 
     const isOccupied = (x: number, y: number) => {
         if (x === startPos.x && y === startPos.y) return true
         if (x === exitPos.x && y === exitPos.y) return true
+        if (initialItems.some(i => i.x === x && i.y === y)) return true
+        if (initialArtifacts.some(i => i.x === x && i.y === y)) return true
+        if (initialEnemies.some(i => i.x === x && i.y === y)) return true
         return false
+    }
+
+    const getRoomCenter = (room: Room) => ({
+        x: Math.floor(room.x + room.w / 2),
+        y: Math.floor(room.y + room.h / 2)
+    })
+
+    const findOpenTileInRoom = (room: Room) => {
+        const center = getRoomCenter(room)
+        if (map[center.y]?.[center.x] === 0 && !isOccupied(center.x, center.y)) return center
+
+        for (let y = room.y; y < room.y + room.h; y++) {
+            for (let x = room.x; x < room.x + room.w; x++) {
+                if (map[y]?.[x] === 0 && !isOccupied(x, y)) return { x, y }
+            }
+        }
+
+        return center
+    }
+
+    const findNeighborFloor = (position: { x: number, y: number }) => {
+        const candidates = [
+            { x: position.x + 1, y: position.y },
+            { x: position.x, y: position.y + 1 },
+            { x: position.x - 1, y: position.y },
+            { x: position.x, y: position.y - 1 }
+        ]
+
+        return candidates.find(candidate => map[candidate.y]?.[candidate.x] === 0) ?? position
+    }
+
+    if (level === 1 && allRooms.length > 1) {
+        const sigilRoom = allRooms[Math.max(1, Math.floor(allRooms.length / 2))]
+        const sigilPos = findOpenTileInRoom(sigilRoom)
+        initialArtifacts.push({
+            id: makeId('artifact'),
+            artifactId: ECHO_SIGIL_ARTIFACT_ID,
+            x: sigilPos.x,
+            y: sigilPos.y,
+            name: 'Echo Sigil',
+            description: 'A cold sigil carrying a piece of Mara\'s voice.',
+            textureUrl: '/echo_sigil.png'
+        })
+
+        const shrinePos = findNeighborFloor(startPos)
+        initialInteractables.push({
+            id: makeId('interactable'),
+            x: shrinePos.x,
+            y: shrinePos.y,
+            kind: 'story',
+            storyBeatId: 'mara_intro',
+            textureUrl: '/echo_shrine.png',
+            name: 'Echo Shrine',
+            repeatable: true
+        })
     }
 
     if (allRooms.length > 1) {
@@ -267,10 +338,11 @@ export function generateDungeon(level: number = 1) {
 
         const swordRoomIdx = Math.floor(Math.random() * (allRooms.length - 1)) + 1
         const swordRoom = allRooms[swordRoomIdx]
+        const swordPos = findOpenTileInRoom(swordRoom)
         initialItems.push({
-            id: uuidv4(),
-            x: Math.floor(swordRoom.x + swordRoom.w / 2),
-            y: Math.floor(swordRoom.y + swordRoom.h / 2),
+            id: makeId('item'),
+            x: swordPos.x,
+            y: swordPos.y,
             type: 'weapon',
             name: swordName,
             effectValue: swordValue
@@ -278,12 +350,12 @@ export function generateDungeon(level: number = 1) {
 
         const shieldRoomIdx = Math.floor(Math.random() * (allRooms.length - 1)) + 1
         const shieldRoom = allRooms[shieldRoomIdx]
+        const shieldPos = findOpenTileInRoom(shieldRoom)
         
-        // Offset the shield slightly so it doesn't spawn exactly on top of the sword if they share a room
         initialItems.push({
-            id: uuidv4(),
-            x: Math.floor(shieldRoom.x + shieldRoom.w / 3),
-            y: Math.floor(shieldRoom.y + shieldRoom.h / 3),
+            id: makeId('item'),
+            x: shieldPos.x,
+            y: shieldPos.y,
             type: 'shield',
             name: shieldName,
             effectValue: shieldValue
@@ -324,7 +396,7 @@ export function generateDungeon(level: number = 1) {
             }
 
             initialEnemies.push({
-                id: uuidv4(),
+                id: makeId('enemy'),
                 x: ex,
                 y: ey,
                 type,
@@ -343,7 +415,7 @@ export function generateDungeon(level: number = 1) {
                 if (!isOccupied(px, py) && !initialItems.some(i => i.x === px && i.y === py)) {
                     if (Math.random() < 0.02) { // 2% chance per cell in room
                         initialItems.push({
-                            id: uuidv4(),
+                            id: makeId('item'),
                             x: px,
                             y: py,
                             type: 'potion',
@@ -362,6 +434,9 @@ export function generateDungeon(level: number = 1) {
         startPosition: startPos,
         exitPosition: exitPos,
         initialEnemies,
-        initialItems
+        initialItems,
+        initialArtifacts,
+        initialInteractables,
+        puzzleLocks
     }
 }

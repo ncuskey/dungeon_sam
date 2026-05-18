@@ -4,6 +4,8 @@ import { useAudio } from '../hooks/useAudio'
 export default function HUD() {
     const health = useGameStore(state => state.playerHealth)
     const inventory = useGameStore(state => state.inventory)
+    const questArtifacts = useGameStore(state => state.questArtifacts)
+    const latestClue = useGameStore(state => state.latestClue)
     const { isMuted, toggleMute } = useAudio()
 
     const equippedWeapon = inventory.items.find(i => i.id === inventory.equippedWeaponId)
@@ -32,6 +34,32 @@ export default function HUD() {
             <div style={{ display: 'flex', gap: '40px' }}>
                 <div>HEALTH: {health}%</div>
                 <div>LEVEL: {useGameStore(state => state.level)}</div>
+            </div>
+            <div style={{
+                position: 'absolute',
+                left: '20px',
+                bottom: '60px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                fontSize: '16px',
+                maxWidth: '520px'
+            }}>
+                <div>
+                    ARTIFACTS: {questArtifacts.length > 0 ? questArtifacts.map(item => item.name.toUpperCase()).join(', ') : 'NONE'}
+                </div>
+                {latestClue && (
+                    <div style={{
+                        color: '#9edcff',
+                        lineHeight: 1.3,
+                        background: 'rgba(0,0,0,0.55)',
+                        border: '1px solid rgba(158,220,255,0.35)',
+                        padding: '6px 8px',
+                        pointerEvents: 'none'
+                    }}>
+                        {latestClue}
+                    </div>
+                )}
             </div>
             <div style={{ display: 'flex', gap: '40px' }}>
                 <div>

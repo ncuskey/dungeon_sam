@@ -6,6 +6,7 @@ export default function PlayerController() {
     const moveBackward = useGameStore((state) => state.moveBackward)
     const turnLeft = useGameStore((state) => state.turnLeft)
     const turnRight = useGameStore((state) => state.turnRight)
+    const interact = useGameStore((state) => state.interact)
 
     // Simple cooldown mechanism
     const lastActionTime = useRef(0)
@@ -17,6 +18,15 @@ export default function PlayerController() {
             if (now - lastActionTime.current < COOLDOWN_MS) return
 
             let acted = false
+            const state = useGameStore.getState()
+
+            if (state.activeStoryBeat) {
+                if (e.code === 'KeyE' || e.code === 'Enter' || e.code === 'Space') {
+                    interact()
+                    lastActionTime.current = now
+                }
+                return
+            }
 
             if (e.code === 'Escape') {
                 useGameStore.getState().togglePause()
@@ -46,27 +56,12 @@ export default function PlayerController() {
                     break
                 case 'Space':
                 case 'KeyF': {
-                    // Check for door presence to decide whether to attack or toggle.
-                    const state = useGameStore.getState()
-                    const { x, y } = state.playerPosition
-                    const dir = state.playerDirection
-                    let tx = x, ty = y
-                    if (dir === 0) ty -= 1
-                    else if (dir === 1) tx += 1
-                    else if (dir === 2) ty += 1
-                    else tx -= 1
-
-                    const cell = state.map[ty]?.[tx]
-                    if (cell === 2 || cell === 3) {
-                        state.toggleDoor()
-                    } else {
-                        state.playerAttack()
-                    }
+                    state.playerAttack()
                     acted = true
                     break
                 }
                 case 'KeyE':
-                    useGameStore.getState().pickupItem()
+                    interact()
                     acted = true
                     break
                 case 'KeyQ': {
@@ -98,7 +93,7 @@ export default function PlayerController() {
 
         window.addEventListener('keydown', handleKeyDown)
         return () => window.removeEventListener('keydown', handleKeyDown)
-    }, [moveForward, moveBackward, turnLeft, turnRight])
+    }, [moveForward, moveBackward, turnLeft, turnRight, interact])
 
     return null
 }

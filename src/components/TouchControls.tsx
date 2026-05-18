@@ -1,7 +1,7 @@
 import { useGameStore } from '../store/gameStore'
 
 export default function TouchControls() {
-    const { phase, moveForward, moveBackward, turnLeft, turnRight, playerAttack, inventory, equipWeapon, pickupItem, useItem } = useGameStore()
+    const { phase, moveForward, moveBackward, turnLeft, turnRight, playerAttack, inventory, equipWeapon, interact, useItem } = useGameStore()
 
     if (phase !== 'PLAYING') return null
 
@@ -139,22 +139,7 @@ export default function TouchControls() {
                 <div
                     onPointerDown={(e) => {
                         e.preventDefault()
-                        
-                        const state = useGameStore.getState()
-                        const { x, y } = state.playerPosition
-                        const dir = state.playerDirection
-                        let tx = x, ty = y
-                        if (dir === 0) ty -= 1
-                        else if (dir === 1) tx += 1
-                        else if (dir === 2) ty += 1
-                        else tx -= 1
-
-                        const cell = state.map[ty]?.[tx]
-                        if (cell === 2 || cell === 3) {
-                            state.toggleDoor()
-                        } else {
-                            pickupItem()
-                        }
+                        interact()
                     }}
                     style={{
                         ...btnStyle,
@@ -163,9 +148,9 @@ export default function TouchControls() {
                         right: '90px',
                         width: '60px',
                         height: '60px',
-                        fontSize: '20px'
+                        fontSize: '16px'
                     }}
-                >✋</div>
+                >USE</div>
             </div>
         </div>
     )

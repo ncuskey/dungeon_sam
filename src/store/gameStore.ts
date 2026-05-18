@@ -4,8 +4,9 @@ import { moveEnemy } from '../utils/ai'
 import { playAttackSound } from '../audio/audioIntegration'
 import { soundManager } from '../audio/SoundManager'
 
-import { Enemy, Item, Inventory, Light } from '../types/game'
-import { v4 as uuidv4 } from 'uuid'
+import { Enemy, Item, Inventory, Light, QuestArtifact, StoryBeat, StoryBeatId, Interactable, PuzzleLocks } from '../types/game'
+import { makeId } from '../utils/id'
+import { ECHO_SIGIL_ARTIFACT_ID, STORY_BEATS, USE_INTERACT_PROMPT } from '../utils/story'
 
 export const CELL_SIZE = 2 // World units per grid cell
 
@@ -40,10 +41,23 @@ interface GameState {
 
     // Inventory
     items: Item[] // Items on ground
+    artifacts: QuestArtifact[] // Quest artifacts on ground
     inventory: Inventory
+    questArtifacts: QuestArtifact[]
     pickupItem: () => void
     equipWeapon: (itemId: string) => void
     useItem: (itemId: string) => void
+
+    // Narrative & Puzzles
+    interactables: Interactable[]
+    storyLog: StoryBeatId[]
+    activeStoryBeat: StoryBeat | null
+    latestClue: string
+    puzzleLocks: PuzzleLocks
+    interact: () => void
+    dismissStory: () => void
+    showStoryBeat: (storyBeatId: StoryBeatId) => void
+    unlockExitSeal: () => void
 
     startGame: () => void
     resetGame: () => void
@@ -55,7 +69,16 @@ interface GameState {
     debugNoEnemies: boolean
 }
 
-const { map: initialMap, startPosition, exitPosition, initialEnemies, initialItems: initialSpawnedItems } = generateDungeon()
+const {
+    map: initialMap,
+    startPosition,
+    exitPosition,
+    initialEnemies,
+    initialItems: initialSpawnedItems,
+    initialArtifacts,
+    initialInteractables,
+    puzzleLocks: initialPuzzleLocks
+} = generateDungeon()
 
 const enemies: Enemy[] = initialEnemies
 
@@ -71,6 +94,40 @@ const getStartingInventory = () => {
 }
 
 const initialInventory = getStartingInventory()
+
+const hasQuestArtifact = (artifacts: QuestArtifact[], artifactId: typeof ECHO_SIGIL_ARTIFACT_ID) => {
+    return artifacts.some(artifact => artifact.artifactId === artifactId)
+}
+
+const getFacingPosition = (position: { x: number, y: number }, direction: Direction) => {
+    let tx = position.x
+    let ty = position.y
+
+    if (direction === 0) ty -= 1
+    else if (direction === 1) tx += 1
+    else if (direction === 2) ty += 1
+    else tx -= 1
+
+    return { x: tx, y: ty }
+}
+
+const isCurrentOrCardinalNeighbor = (a: { x: number, y: number }, b: { x: number, y: number }) => {
+    const dx = Math.abs(a.x - b.x)
+    const dy = Math.abs(a.y - b.y)
+    return dx + dy <= 1
+}
+
+const createStoryUpdate = (
+    state: Pick<GameState, 'storyLog'>,
+    storyBeatId: StoryBeatId
+) => {
+    const beat = STORY_BEATS[storyBeatId]
+    return {
+        activeStoryBeat: beat,
+        storyLog: state.storyLog.includes(storyBeatId) ? state.storyLog : [...state.storyLog, storyBeatId],
+        latestClue: beat.clue
+    }
+}
 
 export const useGameStore = create<GameState>((set, get) => ({
     phase: 'MENU',
@@ -119,9 +176,18 @@ export const useGameStore = create<GameState>((set, get) => ({
     }),
 
     items: initialSpawnedItems,
+    artifacts: initialArtifacts,
     inventory: initialInventory,
+    questArtifacts: [],
+    interactables: initialInteractables,
+    storyLog: [],
+    activeStoryBeat: null,
+    latestClue: '',
+    puzzleLocks: initialPuzzleLocks,
 
     pickupItem: () => set((state) => {
+        if (state.activeStoryBeat) return {}
+
         const { x, y } = state.playerPosition
         const itemIndex = state.items.findIndex(i => i.x === x && i.y === y)
 
@@ -167,6 +233,8 @@ export const useGameStore = create<GameState>((set, get) => ({
     })),
 
     useItem: (itemId) => set((state) => {
+        if (state.activeStoryBeat) return {}
+
         const itemIndex = state.inventory.items.findIndex(i => i.id === itemId)
         if (itemIndex > -1) {
             const item = state.inventory.items[itemIndex]
@@ -184,14 +252,114 @@ export const useGameStore = create<GameState>((set, get) => ({
         return {}
     }),
 
+    interact: () => {
+        const state = get()
+
+        if (state.activeStoryBeat) {
+            get().dismissStory()
+            return
+        }
+
+        const playerPosition = state.playerPosition
+        const facingPosition = getFacingPosition(playerPosition, state.playerDirection)
+
+        const itemOnTile = state.items.find(i => i.x === playerPosition.x && i.y === playerPosition.y)
+        if (itemOnTile) {
+            get().pickupItem()
+            return
+        }
+
+        const artifactOnTile = state.artifacts.find(i => i.x === playerPosition.x && i.y === playerPosition.y)
+        if (artifactOnTile) {
+            set((current) => {
+                const collectedArtifact = current.artifacts.find(i => i.id === artifactOnTile.id)
+                if (!collectedArtifact) return {}
+
+                soundManager.playPickup()
+                return {
+                    artifacts: current.artifacts.filter(i => i.id !== collectedArtifact.id),
+                    questArtifacts: [...current.questArtifacts, { ...collectedArtifact, x: -1, y: -1 }],
+                    ...createStoryUpdate(current, 'echo_sigil_discovery')
+                }
+            })
+            return
+        }
+
+        const storyObject = state.interactables.find(interactable => {
+            if (!isCurrentOrCardinalNeighbor(playerPosition, interactable)) return false
+            return interactable.repeatable || !state.storyLog.includes(interactable.storyBeatId)
+        })
+
+        if (storyObject) {
+            get().showStoryBeat(storyObject.storyBeatId)
+            return
+        }
+
+        const exitSeal = state.puzzleLocks.exitSeal
+        const sealIsReachable =
+            !exitSeal.unlocked &&
+            (isCurrentOrCardinalNeighbor(playerPosition, exitSeal) || (
+                facingPosition.x === exitSeal.x && facingPosition.y === exitSeal.y
+            ))
+
+        if (sealIsReachable) {
+            if (hasQuestArtifact(state.questArtifacts, ECHO_SIGIL_ARTIFACT_ID)) {
+                get().unlockExitSeal()
+            } else {
+                soundManager.playError()
+                get().showStoryBeat('locked_exit_hint')
+            }
+            return
+        }
+
+        const facingCell = state.map[facingPosition.y]?.[facingPosition.x]
+        if (facingCell === 2 || facingCell === 3) {
+            get().toggleDoor()
+            return
+        }
+
+        soundManager.playError()
+        set({ latestClue: 'Nothing answers.' })
+    },
+
+    dismissStory: () => set({ activeStoryBeat: null }),
+
+    showStoryBeat: (storyBeatId) => set((state) => createStoryUpdate(state, storyBeatId)),
+
+    unlockExitSeal: () => set((state) => {
+        if (state.activeStoryBeat) return {}
+        if (state.puzzleLocks.exitSeal.unlocked) return {}
+
+        if (!hasQuestArtifact(state.questArtifacts, ECHO_SIGIL_ARTIFACT_ID)) {
+            soundManager.playError()
+            return createStoryUpdate(state, 'locked_exit_hint')
+        }
+
+        soundManager.playDoorOpen()
+
+        return {
+            puzzleLocks: {
+                ...state.puzzleLocks,
+                exitSeal: {
+                    ...state.puzzleLocks.exitSeal,
+                    unlocked: true
+                }
+            },
+            ...createStoryUpdate(state, 'seal_unlock')
+        }
+    }),
+
     startGame: () => {
         const state = get()
         state.revealMap(state.playerPosition.x, state.playerPosition.y)
-        set({ phase: 'PLAYING' })
+        set((current) => ({
+            phase: 'PLAYING',
+            ...(current.level === 1 && current.storyLog.length === 0 ? createStoryUpdate(current, 'mara_intro') : {})
+        }))
     },
 
     resetGame: () => {
-        const { map, startPosition, exitPosition, initialEnemies, initialItems } = generateDungeon()
+        const { map, startPosition, exitPosition, initialEnemies, initialItems, initialArtifacts, initialInteractables, puzzleLocks } = generateDungeon()
 
         set({
             phase: 'PLAYING',
@@ -201,7 +369,14 @@ export const useGameStore = create<GameState>((set, get) => ({
             exitPosition,
             enemies: initialEnemies,
             items: initialItems,
+            artifacts: initialArtifacts,
             inventory: getStartingInventory(),
+            questArtifacts: [],
+            interactables: initialInteractables,
+            storyLog: ['mara_intro'],
+            activeStoryBeat: STORY_BEATS.mara_intro,
+            latestClue: STORY_BEATS.mara_intro.clue,
+            puzzleLocks,
             playerHealth: 100,
             playerDirection: 1,
             lights: generateLights(map, startPosition),
@@ -211,7 +386,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     },
 
     nextLevel: () => {
-        const { map, startPosition, exitPosition, initialEnemies, initialItems } = generateDungeon(get().level + 1)
+        const { map, startPosition, exitPosition, initialEnemies, initialItems, initialArtifacts, initialInteractables, puzzleLocks } = generateDungeon(get().level + 1)
         set((state) => ({
             level: state.level + 1,
             map,
@@ -219,6 +394,11 @@ export const useGameStore = create<GameState>((set, get) => ({
             exitPosition,
             enemies: initialEnemies,
             items: initialItems,
+            artifacts: initialArtifacts,
+            interactables: initialInteractables,
+            puzzleLocks,
+            activeStoryBeat: null,
+            latestClue: '',
             lights: generateLights(map, startPosition),
             exploredMap: Array(map.length).fill(null).map(() => Array(map[0].length).fill(false))
         }))
@@ -232,7 +412,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     },
 
     toggleDoor: () => set((state) => {
-        if (state.phase !== 'PLAYING') return {}
+        if (state.phase !== 'PLAYING' || state.activeStoryBeat) return {}
 
         const { x, y } = state.playerPosition
         const dir = state.playerDirection
@@ -255,7 +435,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     }),
 
     moveForward: () => set((state) => {
-        if (state.phase !== 'PLAYING') return {}
+        if (state.phase !== 'PLAYING' || state.activeStoryBeat) return {}
 
         const { x, y } = state.playerPosition
         const dir = state.playerDirection
@@ -267,6 +447,15 @@ export const useGameStore = create<GameState>((set, get) => ({
         else newX -= 1
 
         if (newX === state.exitPosition.x && newY === state.exitPosition.y) {
+            if (!state.puzzleLocks.exitSeal.unlocked) {
+                soundManager.playError()
+                if (hasQuestArtifact(state.questArtifacts, ECHO_SIGIL_ARTIFACT_ID)) {
+                    return { latestClue: USE_INTERACT_PROMPT }
+                }
+
+                return createStoryUpdate(state, 'locked_exit_hint')
+            }
+
             soundManager.playLevelComplete()
             get().nextLevel()
             return {}
@@ -333,7 +522,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     }),
 
     moveBackward: () => set((state) => {
-        if (state.phase !== 'PLAYING') return {}
+        if (state.phase !== 'PLAYING' || state.activeStoryBeat) return {}
 
         const { x, y } = state.playerPosition
         const dir = state.playerDirection
@@ -345,6 +534,15 @@ export const useGameStore = create<GameState>((set, get) => ({
         else newX += 1
 
         if (newX === state.exitPosition.x && newY === state.exitPosition.y) {
+            if (!state.puzzleLocks.exitSeal.unlocked) {
+                soundManager.playError()
+                if (hasQuestArtifact(state.questArtifacts, ECHO_SIGIL_ARTIFACT_ID)) {
+                    return { latestClue: USE_INTERACT_PROMPT }
+                }
+
+                return createStoryUpdate(state, 'locked_exit_hint')
+            }
+
             soundManager.playLevelComplete()
             get().nextLevel()
             return {}
@@ -410,15 +608,17 @@ export const useGameStore = create<GameState>((set, get) => ({
         return {}
     }),
 
-    turnLeft: () => set((state) => ({
-        playerDirection: (state.playerDirection + 3) % 4 as Direction
-    })),
+    turnLeft: () => set((state) => (
+        state.activeStoryBeat ? {} : { playerDirection: (state.playerDirection + 3) % 4 as Direction }
+    )),
 
-    turnRight: () => set((state) => ({
-        playerDirection: (state.playerDirection + 1) % 4 as Direction
-    })),
+    turnRight: () => set((state) => (
+        state.activeStoryBeat ? {} : { playerDirection: (state.playerDirection + 1) % 4 as Direction }
+    )),
 
     playerAttack: () => set((state) => {
+        if (state.activeStoryBeat) return {}
+
         const now = performance.now()
         const diff = now - state.lastAttackTime
         if (diff < 500) { // Reverted to 0.5s
@@ -503,7 +703,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
                 if (itemType) {
                     newItems = [...state.items, {
-                        id: uuidv4(),
+                        id: makeId('item'),
                         x: enemy.x,
                         y: enemy.y,
                         type: itemType,
@@ -526,6 +726,8 @@ export const useGameStore = create<GameState>((set, get) => ({
     }),
 
     spawnEnemy: (x, y) => set((state) => {
+        if (state.activeStoryBeat) return {}
+
         const r = Math.random()
         let type: 'imp' | 'goblin' | 'watcher' | 'rubble' = 'imp'
         let hp = 100
@@ -547,7 +749,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
         return {
             enemies: [...state.enemies, {
-                id: uuidv4(),
+                id: makeId('enemy'),
                 x,
                 y,
                 type,
@@ -559,6 +761,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     tickGame: () => set((state) => {
         if (state.phase !== 'PLAYING') return {}
+        if (state.activeStoryBeat) return {}
         if (state.debugNoEnemies) return { enemies: [], shake: Math.max(0, state.shake - 0.1) }
 
         const occupiedSet = new Set<string>()
@@ -647,7 +850,7 @@ function generateLights(map: number[][], startPos: { x: number, y: number }): Li
 
                         // Offset the light 0.4 units towards the wall neighbor
                         lights.push({
-                            id: uuidv4(),
+                            id: makeId('light'),
                             x: x + (wallNeighbor.dx * 0.4),
                             y: y + (wallNeighbor.dy * 0.4),
                             intensity: 2.0,
